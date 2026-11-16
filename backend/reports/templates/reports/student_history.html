@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Attendance History | UPSA Attend</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            margin: 0;
+            padding: 30px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        h1 {
+            color: #26356b;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        input, select, button {
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #26356b;
+            color: white;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #26356b;
+            color: white;
+        }
+
+        .present {
+            color: green;
+            font-weight: bold;
+        }
+
+        .absent {
+            color: red;
+            font-weight: bold;
+        }
+
+        .back-button {
+            display: inline-block;
+            background: #26356b;
+            color: white;
+            padding: 11px 18px;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+
+        .statistics {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            flex: 1;
+            min-width: 150px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <a href="{% url 'dashboard' %}" class="back-button">
+        Back to Dashboard
+    </a>
+
+    <h1>Student Attendance History</h1>
+
+    <p>Search for a student and view their attendance record.</p>
+
+    <div class="card">
+
+        <form method="GET">
+
+            <label>Search by name or index number</label>
+
+            <input
+                type="text"
+                name="search"
+                placeholder="Enter student name or index number"
+                value="{{ search_query }}"
+            >
+
+            <button type="submit">Search Student</button>
+
+        </form>
+
+        {% if students %}
+            <form method="GET">
+
+                <label>Select Student</label>
+
+                <select name="student_id" required>
+
+                    <option value="">Choose a student</option>
+
+                    {% for student in students %}
+                        <option
+                            value="{{ student.id }}"
+                            {% if selected_student.id == student.id %}selected{% endif %}
+                        >
+                            {{ student.full_name }} - {{ student.index_number }}
+                        </option>
+                    {% endfor %}
+
+                </select>
+
+                <input type="hidden" name="search" value="{{ search_query }}">
+
+                <button type="submit">View Attendance History</button>
+
+            </form>
+        {% else %}
+            <p>No students found.</p>
+        {% endif %}
+
+    </div>
+
+    {% if selected_student %}
+
+        <div class="card">
+
+            <h2>{{ selected_student.full_name }}</h2>
+
+            <p>
+                <strong>Index Number:</strong>
+                {{ selected_student.index_number }}
+            </p>
+
+            <p>
+                <strong>Classroom:</strong>
+                {{ selected_student.classroom.name }}
+            </p>
+
+        </div>
+
+        <div class="statistics">
+
+            <div class="stat">
+                <h3>Total Lectures</h3>
+                <h2>{{ total }}</h2>
+            </div>
+
+            <div class="stat">
+                <h3>Present</h3>
+                <h2 class="present">{{ present }}</h2>
+            </div>
+
+            <div class="stat">
+                <h3>Absent</h3>
+                <h2 class="absent">{{ absent }}</h2>
+            </div>
+
+            <div class="stat">
+                <h3>Attendance Rate</h3>
+                <h2>{{ percentage }}%</h2>
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <h2>Lecture History</h2>
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Course Code</th>
+                        <th>Lecture Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for record in records %}
+                        <tr>
+                            <td>{{ record.session.course_name }}</td>
+
+                            <td>{{ record.session.course_code }}</td>
+
+                            <td>{{ record.session.lecture_date }}</td>
+
+                            <td>
+                                {% if record.status == 'Present' %}
+                                    <span class="present">Present</span>
+                                {% else %}
+                                    <span class="absent">Absent</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4">No attendance history found.</td>
+                        </tr>
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>

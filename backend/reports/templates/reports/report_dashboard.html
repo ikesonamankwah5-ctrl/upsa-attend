@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Reports | UPSA Attend</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            margin: 0;
+            padding: 30px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        h1 {
+            color: #26356b;
+        }
+
+        .session-card {
+            background: white;
+            padding: 22px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #26356b;
+            color: white;
+        }
+
+        .present {
+            color: green;
+            font-weight: bold;
+        }
+
+        .absent {
+            color: red;
+            font-weight: bold;
+        }
+
+        .back-button {
+            display: inline-block;
+            background: #26356b;
+            color: white;
+            padding: 11px 18px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .empty {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <a href="{% url 'dashboard' %}" class="back-button">
+        Back to Dashboard
+    </a>
+
+    <h1>Attendance Reports</h1>
+    <p>View attendance records for your classrooms.</p>
+
+    {% for session in sessions %}
+
+        <div class="session-card">
+
+            <h2>{{ session.course_name }}</h2>
+
+            <p><strong>Course Code:</strong> {{ session.course_code }}</p>
+            <p><strong>Classroom:</strong> {{ session.classroom.name }}</p>
+            <p><strong>Lecture Date:</strong> {{ session.lecture_date }}</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Index Number</th>
+                        <th>Attendance Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for record in session.records.all %}
+                        <tr>
+                            <td>{{ record.student.full_name }}</td>
+                            <td>{{ record.student.index_number }}</td>
+                            <td>
+                                {% if record.status == 'Present' %}
+                                    <span class="present">Present</span>
+                                {% else %}
+                                    <span class="absent">Absent</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="3">No attendance records found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+
+    {% empty %}
+
+        <div class="empty">
+            <p>You don't have any attendance reports yet.</p>
+        </div>
+
+    {% endfor %}
+
+</div>
+
+</body>
+</html>
+<div style="display: flex; gap: 15px; flex-wrap: wrap; margin: 20px 0;">
+
+    <div class="session-card">
+        <h3>Total Students</h3>
+        <h2>{{ session.total_students }}</h2>
+    </div>
+
+    <div class="session-card">
+        <h3>Present</h3>
+        <h2 class="present">{{ session.present_count }}</h2>
+    </div>
+
+    <div class="session-card">
+        <h3>Absent</h3>
+        <h2 class="absent">{{ session.absent_count }}</h2>
+    </div>
+
+    <div class="session-card">
+        <h3>Attendance Rate</h3>
+        <h2>{{ session.attendance_percentage }}%</h2>
+    </div>
+
+</div>

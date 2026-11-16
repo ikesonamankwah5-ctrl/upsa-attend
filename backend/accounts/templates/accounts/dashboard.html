@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | UPSA Attend</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6fb;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #253b80;
+            color: white;
+            padding: 30px 20px;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 40px;
+        }
+
+        .sidebar a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+        }
+
+        .sidebar a:hover {
+            background: #4059a5;
+        }
+
+        .logout-form button {
+            display: block;
+            width: 100%;
+            color: white;
+            background: transparent;
+            border: none;
+            text-align: left;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .logout-form button:hover {
+            background: #4059a5;
+        }
+
+        .main {
+            flex: 1;
+            padding: 35px;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .card h3 {
+            color: #253b80;
+            margin-bottom: 12px;
+        }
+
+        .card p {
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <h2>UPSA Attend</h2>
+
+        <a href="/accounts/dashboard/">Dashboard</a>
+        <a href="/classrooms/">My Classroom</a>
+        <a href="/students/">Students</a>
+        <a href="/attendance/">Take Attendance</a>
+        <a href="/reports/">Attendance Reports</a>
+        <a href="{% url 'student_attendance_history' %}">Student Attendance History</a>
+        <a href="{% url 'attendance_analytics' %}">Attendance Analytics</a>
+        <a href="{% url 'low_attendance_alerts' %}">Low Attendance Alerts</a>
+
+        <form method="POST" action="{% url 'logout' %}" class="logout-form">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+
+    <div class="main">
+
+        <div class="header">
+            <h1>Welcome, {{ request.user.first_name }}!</h1>
+            <p>Manage your classroom attendance from one place.</p>
+        </div>
+
+        <div class="cards">
+
+            <div class="card">
+                <h3>My Classroom</h3>
+                <p>Manage your class information.</p>
+            </div>
+
+            <div class="card">
+                <h3>Students</h3>
+                <p>Register and manage students.</p>
+            </div>
+
+            <div class="card">
+                <h3>Attendance</h3>
+                <p>Record daily class attendance.</p>
+            </div>
+
+            <div class="card">
+                <h3>Reports</h3>
+                <p>View attendance statistics.</p>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

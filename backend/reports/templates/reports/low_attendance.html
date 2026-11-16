@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Low Attendance Alerts | UPSA Attend</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            margin: 0;
+            padding: 30px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        h1 {
+            color: #26356b;
+        }
+
+        .back-button {
+            display: inline-block;
+            background: #26356b;
+            color: white;
+            padding: 11px 18px;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+
+        .summary {
+            background: white;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .summary h2 {
+            color: #c62828;
+            font-size: 32px;
+        }
+
+        .alert-box {
+            background: #fff3f3;
+            border-left: 5px solid #d32f2f;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #26356b;
+            color: white;
+        }
+
+        .percentage {
+            color: #c62828;
+            font-weight: bold;
+        }
+
+        .empty {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+            color: green;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <a href="{% url 'dashboard' %}" class="back-button">
+        Back to Dashboard
+    </a>
+
+    <h1>Low Attendance Alerts</h1>
+
+    <p>Students whose attendance is below the required 75% threshold.</p>
+
+    <div class="summary">
+        <h3>Total Students Requiring Attention</h3>
+        <h2>{{ total_alerts }}</h2>
+    </div>
+
+    {% if low_attendance_students %}
+
+        {% for student in low_attendance_students %}
+
+            <div class="alert-box">
+                <strong>Attendance Warning:</strong>
+                {{ student.name }} has an attendance rate of
+                {{ student.percentage }}%.
+            </div>
+
+        {% endfor %}
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Index Number</th>
+                    <th>Total Lectures</th>
+                    <th>Present</th>
+                    <th>Absent</th>
+                    <th>Attendance Rate</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for student in low_attendance_students %}
+
+                    <tr>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.index_number }}</td>
+                        <td>{{ student.total }}</td>
+                        <td>{{ student.present }}</td>
+                        <td>{{ student.absent }}</td>
+                        <td class="percentage">
+                            {{ student.percentage }}%
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+        </table>
+
+    {% else %}
+
+        <div class="empty">
+            <h3>Excellent! No low-attendance students found.</h3>
+            <p>All students with recorded attendance currently meet the 75% threshold.</p>
+        </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>

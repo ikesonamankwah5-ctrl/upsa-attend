@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark Attendance | UPSA Attend</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        h1, h2 {
+            color: #253b80;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 14px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #253b80;
+            color: white;
+        }
+
+        select {
+            padding: 9px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 13px 22px;
+            background: #253b80;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        a {
+            color: #253b80;
+        }
+
+        .info {
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <p><a href="{% url 'attendance_list' %}">← Back to Attendance</a></p>
+
+    <div class="card">
+
+        <h1>Mark Student Attendance</h1>
+
+        <div class="info">
+            <p><strong>Course:</strong> {{ session.course_name }}</p>
+            <p><strong>Course Code:</strong> {{ session.course_code }}</p>
+            <p><strong>Classroom:</strong> {{ session.classroom.name }}</p>
+            <p><strong>Lecture Date:</strong> {{ session.lecture_date }}</p>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Index Number</th>
+                        <th>Attendance Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for record in records %}
+                    <tr>
+                        <td>{{ record.student.full_name }}</td>
+
+                        <td>{{ record.student.index_number }}</td>
+
+                        <td>
+                            <select name="attendance_{{ record.id }}">
+                                <option value="Present"
+                                    {% if record.status == 'Present' %}selected{% endif %}>
+                                    Present
+                                </option>
+
+                                <option value="Absent"
+                                    {% if record.status == 'Absent' %}selected{% endif %}>
+                                    Absent
+                                </option>
+                            </select>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3">No students found in this classroom.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <button type="submit">Save Attendance</button>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Classroom | UPSA Attend</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        h1, h2 {
+            color: #253b80;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button, .qr-btn {
+            padding: 10px 18px;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .create-btn {
+            margin-top: 20px;
+            background: #253b80;
+        }
+
+        .archive-btn {
+            background: #c0392b;
+        }
+
+        .restore-btn {
+            background: #218838;
+        }
+
+        .qr-btn {
+            background: #16803c;
+            margin: 5px 0;
+        }
+
+        .classroom {
+            border-bottom: 1px solid #ddd;
+            padding: 15px 0;
+        }
+
+        a {
+            color: #253b80;
+        }
+
+        .action-form {
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <p><a href="{% url 'dashboard' %}">← Back to Dashboard</a></p>
+
+    <h1>My Classroom</h1>
+    <p>Create and manage your classrooms on UPSA Attend.</p>
+
+    {% if administrator %}
+    <div class="card">
+
+        <h2>Create a Classroom</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create">
+
+            <label>Classroom Name</label>
+            <input type="text" name="name"
+                   placeholder="e.g. Business Administration 14" required>
+
+            <label>Programme</label>
+            <input type="text" name="programme"
+                   placeholder="e.g. Business Administration" required>
+
+            <label>Level</label>
+            <input type="number" name="level"
+                   placeholder="e.g. 300" min="1" required>
+
+            <label>Academic Year</label>
+            <input type="text" name="academic_year"
+                   placeholder="e.g. 2026/2027" required>
+
+            <button type="submit" class="create-btn">
+                Create Classroom
+            </button>
+        </form>
+
+    </div>
+    {% endif %}
+
+    <div class="card">
+
+        <h2>Active Classrooms</h2>
+
+        {% for classroom in classrooms %}
+
+            <div class="classroom">
+
+                <h3>{{ classroom.name }}</h3>
+
+                <p>Programme: {{ classroom.programme }}</p>
+                <p>Level: {{ classroom.level }}</p>
+                <p>Academic Year: {{ classroom.academic_year }}</p>
+
+                <a
+                    href="{% url 'classroom_qr_code' classroom.id %}"
+                    target="_blank"
+                    class="qr-btn">
+                    View / Print QR Code
+                </a>
+
+                {% if administrator %}
+
+                    <form method="POST" class="action-form">
+                        {% csrf_token %}
+
+                        <input type="hidden"
+                               name="classroom_id"
+                               value="{{ classroom.id }}">
+
+                        <input type="hidden"
+                               name="action"
+                               value="archive">
+
+                        <button type="submit" class="archive-btn">
+                            Archive Classroom
+                        </button>
+                    </form>
+
+                {% endif %}
+
+            </div>
+
+        {% empty %}
+
+            <p>No active classrooms available.</p>
+
+        {% endfor %}
+
+    </div>
+
+    {% if administrator %}
+
+    <div class="card">
+
+        <h2>Archived Classrooms</h2>
+
+        {% for classroom in archived_classrooms %}
+
+            <div class="classroom">
+
+                <h3>{{ classroom.name }}</h3>
+
+                <p>Programme: {{ classroom.programme }}</p>
+                <p>Level: {{ classroom.level }}</p>
+                <p>Academic Year: {{ classroom.academic_year }}</p>
+
+                <form method="POST" class="action-form">
+                    {% csrf_token %}
+
+                    <input type="hidden"
+                           name="classroom_id"
+                           value="{{ classroom.id }}">
+
+                    <input type="hidden"
+                           name="action"
+                           value="restore">
+
+                    <button type="submit" class="restore-btn">
+                        Restore Classroom
+                    </button>
+                </form>
+
+            </div>
+
+        {% empty %}
+
+            <p>No archived classrooms.</p>
+
+        {% endfor %}
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>

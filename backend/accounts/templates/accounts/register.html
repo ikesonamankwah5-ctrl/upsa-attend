@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration | UPSA Attend</title>
+</head>
+<body>
+
+    <h2>UPSA Attend Student Registration</h2>
+
+    <p>Enter your UPSA index number to begin registration.</p>
+
+    {% if messages %}
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <label>UPSA Index Number</label><br>
+        <input
+            type="text"
+            name="index_number"
+            placeholder="Enter your index number"
+            required
+        >
+
+        <br><br>
+
+        <button type="submit">Send Verification Code</button>
+    </form>
+
+    <p>Already registered? <a href="{% url 'login' %}">Log in</a></p>
+
+</body>
+</html>

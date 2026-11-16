@@ -1,0 +1,9 @@
+Django==6.1.3
+qrcode==8.2
+Pillow==13.0.0
+WhiteNoise==6.12.0
+sqlparse==0.6.1
+tzdata==2026.6
+gunicorn
+dj-database-url==3.1.2
+psycopg==3.3.9

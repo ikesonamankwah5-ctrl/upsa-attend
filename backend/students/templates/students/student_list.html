@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students | UPSA Attend</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        h1, h2 {
+            color: #253b80;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 6px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 20px;
+            background: #253b80;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #253b80;
+            color: white;
+        }
+
+        .message {
+            padding: 10px;
+            background: #e6f4ea;
+            margin-bottom: 10px;
+        }
+
+        a {
+            color: #253b80;
+        }
+
+        .instructions {
+            background: #f4f6fb;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <p><a href="{% url 'dashboard' %}">← Back to Dashboard</a></p>
+
+    <h1>Student Management</h1>
+    <p>Register and manage students in your classroom.</p>
+
+    {% if messages %}
+        {% for message in messages %}
+            <p class="message">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card">
+
+        <h2>Register New Student</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <label>Select Classroom</label>
+            <select name="classroom" required>
+                <option value="">Choose a classroom</option>
+                {% for classroom in classrooms %}
+                    <option value="{{ classroom.id }}">
+                        {{ classroom.name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label>Full Name</label>
+            <input type="text" name="full_name" required>
+
+            <label>Index Number</label>
+            <input type="text" name="index_number" required>
+
+            <label>Email Address (Optional)</label>
+            <input type="email" name="email">
+
+            <label>Phone Number (Optional)</label>
+            <input type="text" name="phone_number">
+
+            <button type="submit">Register Student</button>
+        </form>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Bulk Import Students</h2>
+
+        <p>Upload an Excel or CSV file containing multiple students.</p>
+
+        <form method="POST"
+              action="{% url 'bulk_import_students' %}"
+              enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            <label>Select Classroom</label>
+
+            <select name="classroom" required>
+                <option value="">Choose a classroom</option>
+
+                {% for classroom in classrooms %}
+                    <option value="{{ classroom.id }}">
+                        {{ classroom.name }}
+                    </option>
+                {% endfor %}
+
+            </select>
+
+            <label>Choose Excel or CSV File</label>
+
+            <input type="file"
+                   name="student_file"
+                   accept=".csv,.xlsx"
+                   required>
+
+            <button type="submit">Import Students</button>
+
+        </form>
+
+        <div class="instructions">
+
+            <strong>File requirements</strong>
+
+            <p>Your first row must contain these exact column headings:</p>
+
+            <p><strong>full_name, index_number</strong></p>
+
+            <p>Example:</p>
+
+            <p><strong>Emmanuel Asakiya,10327557</strong></p>
+
+            <p>
+                Supported formats: Excel (.xlsx) and CSV (.csv).
+            </p>
+
+            <p>Email and phone number will automatically remain blank.</p>
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Registered Students</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Index Number</th>
+                    <th>Classroom</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for student in students %}
+                    <tr>
+                        <td>{{ student.full_name }}</td>
+                        <td>{{ student.index_number }}</td>
+                        <td>{{ student.classroom.name }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3">No students registered yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+</body>
+</html>

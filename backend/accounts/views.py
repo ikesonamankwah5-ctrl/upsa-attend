@@ -1,26 +1,19 @@
-import secrets
-import time
-import logging
+import re
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.password_validation import validate_password
-from django.contrib.auth.hashers import make_password, check_password
 from django.views.decorators.http import require_POST
 from django.core.exceptions import ValidationError
-from django.core.mail import send_mail
 from django.contrib import messages
-from django.db import transaction
+from django.db import transaction, IntegrityError
 
 from students.models import Student
 
 
-logger = logging.getLogger(__name__)
-
-
-# STUDENT REGISTRATION - REQUEST OTP
+# STUDENT REGISTRATION
 def register(request):
 
     if request.method == 'POST':
@@ -29,10 +22,31 @@ def register(request):
             'index_number', ''
         ).strip()
 
-        if not index_number:
-            messages.error(request, 'Please enter your index number.')
+        phone_number = request.POST.get(
+            'phone_number', ''
+        ).strip()
+
+        username = request.POST.get(
+            'username', ''
+        ).strip()
+
+        password = request.POST.get('password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+
+        if not all([
+            index_number,
+            phone_number,
+            username,
+            password,
+            confirm_password
+        ]):
+            messages.error(
+                request,
+                'Please complete all required fields.'
+            )
             return redirect('register')
 
+        # Check the imported student database.
         student = Student.objects.filter(
             index_number=index_number
         ).first()
@@ -51,185 +65,79 @@ def register(request):
             )
             return redirect('login')
 
-        email = f'{student.index_number}@upsamail.edu.gh'
+        # Validate phone number.
+        cleaned_phone = re.sub(r'[\s-]', '', phone_number)
 
-        # Prevent overriding an existing, different student email.
-        if student.email and student.email.strip().lower() != email.lower():
+        if not re.fullmatch(r'\+?\d{9,15}', cleaned_phone):
             messages.error(
                 request,
-                'Your registered email requires administrator verification.'
+                'Please enter a valid phone number.'
             )
             return redirect('register')
-
-        # Prevent repeated OTP requests within 60 seconds.
-        last_request = request.session.get('otp_last_request', 0)
-
-        if time.time() - last_request < 60:
-            messages.error(
-                request,
-                'Please wait one minute before requesting another code.'
-            )
-            return redirect('register')
-
-        otp = str(secrets.randbelow(900000) + 100000)
-
-        try:
-            send_mail(
-                subject='UPSA Attend Email Verification',
-                message=(
-                    f'Hello {student.full_name},\n\n'
-                    f'Your UPSA Attend verification code is: {otp}\n\n'
-                    'This code expires in 10 minutes.\n'
-                    'If you did not request this code, please ignore this email.'
-                ),
-                from_email=None,
-                recipient_list=[email],
-                fail_silently=False,
-            )
-
-        except Exception as e:
-            logger.exception(
-                "UPSA Attend OTP email sending failed: %s", e
-            )
-
-            messages.error(
-                request,
-                'Unable to send the verification email. Please try again later.'
-            )
-            return redirect('register')
-
-        request.session['registration_student_id'] = student.id
-        request.session['registration_otp_hash'] = make_password(otp)
-        request.session['registration_otp_expiry'] = time.time() + 600
-        request.session['registration_otp_attempts'] = 0
-        request.session['otp_last_request'] = time.time()
-
-        return redirect('verify_email')
-
-    return render(request, 'accounts/register.html')
-
-
-# VERIFY OTP AND CREATE STUDENT ACCOUNT
-def verify_email(request):
-
-    student_id = request.session.get('registration_student_id')
-    otp_hash = request.session.get('registration_otp_hash')
-    expiry = request.session.get('registration_otp_expiry')
-
-    if not student_id or not otp_hash or not expiry:
-        messages.error(
-            request,
-            'Please begin registration again.'
-        )
-        return redirect('register')
-
-    if time.time() > expiry:
-        request.session.pop('registration_student_id', None)
-        request.session.pop('registration_otp_hash', None)
-        request.session.pop('registration_otp_expiry', None)
-        request.session.pop('registration_otp_attempts', None)
-
-        messages.error(
-            request,
-            'Your verification code has expired. Please register again.'
-        )
-        return redirect('register')
-
-    student = Student.objects.filter(id=student_id).first()
-
-    if not student or student.user is not None:
-        messages.error(
-            request,
-            'This student record is unavailable for registration.'
-        )
-        return redirect('register')
-
-    if request.method == 'POST':
-
-        otp = request.POST.get('otp', '').strip()
-        username = request.POST.get('username', '').strip()
-        password = request.POST.get('password', '')
-        confirm_password = request.POST.get('confirm_password', '')
-
-        attempts = request.session.get(
-            'registration_otp_attempts', 0
-        )
-
-        if attempts >= 5:
-            request.session.pop('registration_student_id', None)
-            request.session.pop('registration_otp_hash', None)
-            request.session.pop('registration_otp_expiry', None)
-            request.session.pop('registration_otp_attempts', None)
-
-            messages.error(
-                request,
-                'Too many incorrect attempts. Please start registration again.'
-            )
-            return redirect('register')
-
-        if not check_password(otp, otp_hash):
-
-            request.session['registration_otp_attempts'] = attempts + 1
-
-            messages.error(
-                request,
-                'Incorrect verification code.'
-            )
-            return redirect('verify_email')
-
-        if not username or not password:
-            messages.error(
-                request,
-                'Please complete all required fields.'
-            )
-            return redirect('verify_email')
 
         if User.objects.filter(username=username).exists():
             messages.error(
                 request,
                 'This username is already taken.'
             )
-            return redirect('verify_email')
+            return redirect('register')
 
         if password != confirm_password:
             messages.error(
                 request,
                 'Passwords do not match.'
             )
-            return redirect('verify_email')
-
-        email = f'{student.index_number}@upsamail.edu.gh'
+            return redirect('register')
 
         user = User(
             username=username,
-            first_name=student.full_name,
-            email=email
+            first_name=student.full_name
         )
 
         try:
             validate_password(password, user=user)
+
         except ValidationError as errors:
             for error in errors:
                 messages.error(request, error)
-            return redirect('verify_email')
 
-        with transaction.atomic():
+            return redirect('register')
 
-            user = User.objects.create_user(
-                username=username,
-                email=email,
-                password=password,
-                first_name=student.full_name
+        try:
+            with transaction.atomic():
+
+                # Lock the student record to prevent duplicate registration.
+                student = Student.objects.select_for_update().get(
+                    index_number=index_number
+                )
+
+                if student.user is not None:
+                    messages.error(
+                        request,
+                        'This student has already registered.'
+                    )
+                    return redirect('login')
+
+                user = User.objects.create_user(
+                    username=username,
+                    password=password,
+                    first_name=student.full_name,
+                    email=student.email or ''
+                )
+
+                student.user = user
+                student.phone_number = cleaned_phone
+
+                student.save(
+                    update_fields=['user', 'phone_number']
+                )
+
+        except IntegrityError:
+            messages.error(
+                request,
+                'Registration could not be completed. Please check your details.'
             )
-
-            student.user = user
-            student.email = email
-            student.save(update_fields=['user', 'email'])
-
-        request.session.pop('registration_student_id', None)
-        request.session.pop('registration_otp_hash', None)
-        request.session.pop('registration_otp_expiry', None)
-        request.session.pop('registration_otp_attempts', None)
+            return redirect('register')
 
         messages.success(
             request,
@@ -238,10 +146,7 @@ def verify_email(request):
 
         return redirect('login')
 
-    return render(request, 'accounts/verify_email.html', {
-        'student': student,
-        'email': f'{student.index_number}@upsamail.edu.gh'
-    })
+    return render(request, 'accounts/register.html')
 
 
 # LOGIN

@@ -1,39 +1,77 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Registration | UPSA Attend</title>
-</head>
-<body>
+\<!DOCTYPE html>
 
-    <h2>UPSA Attend Student Registration</h2>
+\<html lang="en"> \<head>     \<meta charset="UTF-8">     \<meta name="viewport" content="width=device-width, initial-scale=1.0">     \<title>Student Registration | UPSA Attend\</title> \</head> \<body>
 
-    <p>Enter your UPSA index number to begin registration.</p>
+```
+<h2>UPSA Attend Student Registration</h2>
 
-    {% if messages %}
-        {% for message in messages %}
-            <p>{{ message }}</p>
-        {% endfor %}
-    {% endif %}
+<p>Enter your details to create your account.</p>
 
-    <form method="POST">
-        {% csrf_token %}
+{% if messages %}
+    {% for message in messages %}
+        <p>{{ message }}</p>
+    {% endfor %}
+{% endif %}
 
-        <label>UPSA Index Number</label><br>
-        <input
-            type="text"
-            name="index_number"
-            placeholder="Enter your index number"
-            required
-        >
+<form method="POST">
+    {% csrf_token %}
 
-        <br><br>
+    <label>UPSA Index Number</label><br>
+    <input
+        type="text"
+        name="index_number"
+        placeholder="Enter your UPSA index number"
+        required
+    >
 
-        <button type="submit">Send Verification Code</button>
-    </form>
+    <br><br>
 
-    <p>Already registered? <a href="{% url 'login' %}">Log in</a></p>
+    <label>Phone Number</label><br>
+    <input
+        type="tel"
+        name="phone_number"
+        placeholder="e.g. 0241234567"
+        required
+    >
 
-</body>
-</html>
+    <br><br>
+
+    <label>Username</label><br>
+    <input
+        type="text"
+        name="username"
+        placeholder="Choose a username"
+        required
+    >
+
+    <br><br>
+
+    <label>Password</label><br>
+    <input
+        type="password"
+        name="password"
+        placeholder="Create a password"
+        required
+    >
+
+    <br><br>
+
+    <label>Confirm Password</label><br>
+    <input
+        type="password"
+        name="confirm_password"
+        placeholder="Confirm your password"
+        required
+    >
+
+    <br><br>
+
+    <button type="submit">Create Account</button>
+
+</form>
+
+<p>Already registered? <a href="{% url 'login' %}">Log in</a></p>
+```
+
+\</body>
+\</html>

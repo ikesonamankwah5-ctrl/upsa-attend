@@ -1,5 +1,6 @@
 import secrets
 import time
+import logging
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
@@ -14,6 +15,9 @@ from django.contrib import messages
 from django.db import transaction
 
 from students.models import Student
+
+
+logger = logging.getLogger(__name__)
 
 
 # STUDENT REGISTRATION - REQUEST OTP
@@ -83,7 +87,11 @@ def register(request):
                 fail_silently=False,
             )
 
-        except Exception:
+        except Exception as e:
+            logger.exception(
+                "UPSA Attend OTP email sending failed: %s", e
+            )
+
             messages.error(
                 request,
                 'Unable to send the verification email. Please try again later.'

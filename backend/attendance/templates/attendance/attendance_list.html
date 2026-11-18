@@ -45,7 +45,7 @@
             box-sizing: border-box;
         }
 
-        button, .mark-button {
+        button, .mark-button, .qr-button {
             display: inline-block;
             margin-top: 10px;
             padding: 10px 15px;
@@ -55,6 +55,7 @@
             border-radius: 6px;
             text-decoration: none;
             cursor: pointer;
+            white-space: nowrap;
         }
 
         .close-button {
@@ -65,11 +66,15 @@
             background: #16803c;
         }
 
+        .qr-button {
+            background: #6b35a5;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            min-width: 850px;
+            min-width: 1050px;
         }
 
         th, td {
@@ -103,6 +108,11 @@
         .empty-message {
             color: #777;
             padding: 15px 0;
+        }
+
+        .qr-waiting {
+            color: #777;
+            font-size: 13px;
         }
     </style>
 </head>
@@ -151,11 +161,7 @@
 
                 <label>Lecture Date</label>
 
-                <input
-                    type="date"
-                    name="lecture_date"
-                    required
-                >
+                <input type="date" name="lecture_date" required>
 
                 <button type="submit">
                     Create Attendance Session
@@ -188,6 +194,7 @@
                     <th>Date</th>
                     <th>Status</th>
                     <th>Session Control</th>
+                    <th>Rotating QR Code</th>
                     <th>Records</th>
                 </tr>
             </thead>
@@ -237,29 +244,43 @@
 
                                     {% if session.is_open %}
 
-                                        <input type="hidden"
-                                               name="action"
-                                               value="close">
+                                        <input type="hidden" name="action" value="close">
 
-                                        <button type="submit"
-                                                class="close-button">
+                                        <button type="submit" class="close-button">
                                             Close Attendance
                                         </button>
 
                                     {% else %}
 
-                                        <input type="hidden"
-                                               name="action"
-                                               value="open">
+                                        <input type="hidden" name="action" value="open">
 
-                                        <button type="submit"
-                                                class="open-button">
+                                        <button type="submit" class="open-button">
                                             Open Attendance
                                         </button>
 
                                     {% endif %}
 
                                 </form>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            {% if session.is_open and not session.classroom.is_archived %}
+
+                                <a class="qr-button"
+                                   href="{% url 'display_rotating_qr' session.id %}"
+                                   target="_blank">
+                                    Display Rotating QR
+                                </a>
+
+                            {% else %}
+
+                                <span class="qr-waiting">
+                                    Open attendance first
+                                </span>
 
                             {% endif %}
 
@@ -277,7 +298,7 @@
                 {% empty %}
 
                     <tr>
-                        <td colspan="7">
+                        <td colspan="8">
                             No attendance sessions created yet.
                         </td>
                     </tr>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Confirmation | UPSA Attend</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: #f3f4f6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            width: 100%;
+            max-width: 480px;
+            padding: 40px 30px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .icon {
+            width: 75px;
+            height: 75px;
+            background: #dcfce7;
+            color: #15803d;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            margin: 0 auto 20px;
+        }
+
+        h1 {
+            color: #166534;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        .details {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .details p {
+            margin: 12px 0;
+            color: #334155;
+        }
+
+        .details strong {
+            color: #172554;
+        }
+
+        .present {
+            color: #15803d;
+            font-weight: bold;
+        }
+
+        .button {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 13px 25px;
+            background: #1d4ed8;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .brand {
+            margin-top: 25px;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+
+    <div class="icon">✓</div>
+
+    {% if already_present %}
+        <h1>Attendance Already Recorded!</h1>
+        <p class="subtitle">
+            Your attendance for this lecture has already been recorded.
+        </p>
+    {% else %}
+        <h1>Attendance Successful!</h1>
+        <p class="subtitle">
+            Your attendance has been recorded successfully.
+        </p>
+    {% endif %}
+
+    <div class="details">
+        <p><strong>Course:</strong> {{ session.course_name }}</p>
+        <p><strong>Course Code:</strong> {{ session.course_code }}</p>
+        <p><strong>Lecture Date:</strong> {{ session.lecture_date|date:"d M Y" }}</p>
+        <p><strong>Attendance Status:</strong> <span class="present">PRESENT</span></p>
+
+        <p>
+            <strong>Time Recorded:</strong>
+            {% if record.checked_in_at %}
+                {{ record.checked_in_at|date:"h:i A" }}
+            {% else %}
+                Previously recorded
+            {% endif %}
+        </p>
+    </div>
+
+    <a href="{% url 'dashboard' %}" class="button">Return to Dashboard</a>
+
+    <div class="brand">UPSA Attend | Smart Attendance Management</div>
+</div>
+
+</body>
+</html>

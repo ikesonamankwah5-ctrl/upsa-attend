@@ -2,7 +2,7 @@ from django.core import signing
 from django.utils import timezone
 
 
-QR_VALIDITY_SECONDS = 30
+QR_VALIDITY_SECONDS = 60
 
 QR_SALT = "upsa-attend-rotating-qr-v1"
 
@@ -33,10 +33,10 @@ def verify_qr_token(token, session_id):
             max_age=60
         )
 
-    except signing.BadSignature:
+    except signing.SignatureExpired:
         return False
 
-    except signing.SignatureExpired:
+    except signing.BadSignature:
         return False
 
     current_time = int(timezone.now().timestamp())

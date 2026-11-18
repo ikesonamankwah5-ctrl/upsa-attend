@@ -692,7 +692,7 @@ def rotating_qr_check_in(request, token):
         )
         return redirect('dashboard')
 
-    # Verify the 30-second QR time slot
+    # Verify the 60-second QR time slot
     if not verify_qr_token(token, session_id):
         messages.error(
             request,
@@ -771,19 +771,17 @@ def rotating_qr_check_in(request, token):
 
             already_present = False
 
-    if already_present:
-        messages.info(
-            request,
-            'Your attendance has already been recorded.'
-        )
+    # Display the attendance confirmation page
+    return render(
+        request,
+        'attendance/attendance_success.html',
+        {
+            'session': session,
+            'record': record,
+            'already_present': already_present,
+        }
+    )
 
-    else:
-        messages.success(
-            request,
-            f'Attendance recorded successfully for {session.course_code}.'
-        )
-
-    return redirect('dashboard')
 
 # --------------------------------------------------
 # STUDENT PERSONAL ATTENDANCE HISTORY
@@ -810,9 +808,11 @@ def my_attendance(request):
     ).order_by('-session__lecture_date')
 
     total_classes = records.count()
+
     classes_attended = records.filter(
         status=AttendanceRecord.PRESENT
     ).count()
+
     classes_missed = records.filter(
         status=AttendanceRecord.ABSENT
     ).count()

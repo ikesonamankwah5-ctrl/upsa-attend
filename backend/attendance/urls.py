@@ -49,4 +49,11 @@ urlpatterns = [
         name='rotating_qr_check_in'
     ),
 
+    # Student personal attendance history
+    path(
+        'my-attendance/',
+        views.my_attendance,
+        name='my_attendance'
+    ),
+
 ]

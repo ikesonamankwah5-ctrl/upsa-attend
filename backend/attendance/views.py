@@ -784,3 +784,56 @@ def rotating_qr_check_in(request, token):
         )
 
     return redirect('dashboard')
+
+# --------------------------------------------------
+# STUDENT PERSONAL ATTENDANCE HISTORY
+# --------------------------------------------------
+
+@login_required
+def my_attendance(request):
+
+    student = getattr(request.user, 'student_profile', None)
+
+    if student is None:
+        messages.error(
+            request,
+            'Your account is not linked to a student record.'
+        )
+        return redirect('dashboard')
+
+    records = AttendanceRecord.objects.filter(
+        student=student
+    ).select_related(
+        'session',
+        'session__classroom',
+        'session__course_offering__semester'
+    ).order_by('-session__lecture_date')
+
+    total_classes = records.count()
+    classes_attended = records.filter(
+        status=AttendanceRecord.PRESENT
+    ).count()
+    classes_missed = records.filter(
+        status=AttendanceRecord.ABSENT
+    ).count()
+
+    attendance_percentage = 0
+
+    if total_classes > 0:
+        attendance_percentage = round(
+            (classes_attended / total_classes) * 100,
+            2
+        )
+
+    return render(
+        request,
+        'attendance/my_attendance.html',
+        {
+            'student': student,
+            'records': records,
+            'total_classes': total_classes,
+            'classes_attended': classes_attended,
+            'classes_missed': classes_missed,
+            'attendance_percentage': attendance_percentage,
+        }
+    )

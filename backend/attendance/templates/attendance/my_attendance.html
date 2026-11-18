@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Attendance | UPSA Attend</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            color: #202b45;
+        }
+
+        .header {
+            background: #172554;
+            color: white;
+            padding: 22px 7%;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .header p {
+            margin-bottom: 0;
+            color: #dbeafe;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .back {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #1d4ed8;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .welcome {
+            margin-bottom: 25px;
+        }
+
+        .welcome h2 {
+            margin-bottom: 8px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+        }
+
+        .card p {
+            color: #64748b;
+            margin: 0 0 12px;
+        }
+
+        .card h2 {
+            margin: 0;
+            font-size: 30px;
+            color: #172554;
+        }
+
+        .history {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 550px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        .present {
+            color: #15803d;
+            font-weight: bold;
+        }
+
+        .absent {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 30px;
+            color: #64748b;
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                padding: 20px;
+            }
+
+            .container {
+                margin-top: 22px;
+            }
+
+            .history {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="header">
+    <h1>UPSA Attend</h1>
+    <p>My Attendance Dashboard</p>
+</header>
+
+<main class="container">
+
+    <a class="back" href="{% url 'dashboard' %}">
+        ← Back to Dashboard
+    </a>
+
+    <section class="welcome">
+        <h2>My Attendance</h2>
+        <p>
+            Welcome, {{ student.full_name }}.
+            Here is your attendance record.
+        </p>
+        <p>
+            Index Number: {{ student.index_number }}
+        </p>
+    </section>
+
+    <section class="cards">
+
+        <div class="card">
+            <p>Total Classes</p>
+            <h2>{{ total_classes }}</h2>
+        </div>
+
+        <div class="card">
+            <p>Classes Attended</p>
+            <h2>{{ classes_attended }}</h2>
+        </div>
+
+        <div class="card">
+            <p>Classes Missed</p>
+            <h2>{{ classes_missed }}</h2>
+        </div>
+
+        <div class="card">
+            <p>Attendance Percentage</p>
+            <h2>{{ attendance_percentage }}%</h2>
+        </div>
+
+    </section>
+
+    <section class="history">
+
+        <h2>Attendance History</h2>
+
+        {% if records %}
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Course</th>
+                    <th>Classroom</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>{{ record.session.lecture_date|date:"d M Y" }}</td>
+                    <td>
+                        {{ record.session.course_code }}
+                        - {{ record.session.course_name }}
+                    </td>
+                    <td>{{ record.session.classroom }}</td>
+                    <td>
+                        {% if record.status == "Present" %}
+                            <span class="present">Present</span>
+                        {% else %}
+                            <span class="absent">Absent</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% else %}
+
+        <div class="empty">
+            <p>You do not have any attendance records yet.</p>
+        </div>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+</body>
+</html>

@@ -91,6 +91,35 @@
         .card p {
             color: #666;
         }
+
+        .card a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            transition: 0.2s;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 20px;
+            }
+
+            .sidebar h2 {
+                margin-bottom: 15px;
+            }
+
+            .main {
+                padding: 20px;
+            }
+        }
     </style>
 </head>
 
@@ -103,6 +132,9 @@
         <a href="/classrooms/">My Classroom</a>
         <a href="/students/">Students</a>
         <a href="/attendance/">Take Attendance</a>
+
+        <a href="{% url 'my_attendance' %}">My Attendance</a>
+
         <a href="/reports/">Attendance Reports</a>
         <a href="{% url 'student_attendance_history' %}">Student Attendance History</a>
         <a href="{% url 'attendance_analytics' %}">Attendance Analytics</a>
@@ -141,6 +173,13 @@
             <div class="card">
                 <h3>Reports</h3>
                 <p>View attendance statistics.</p>
+            </div>
+
+            <div class="card">
+                <a href="{% url 'my_attendance' %}">
+                    <h3>My Attendance</h3>
+                    <p>View your personal attendance records, classes attended and attendance percentage.</p>
+                </a>
             </div>
 
         </div>

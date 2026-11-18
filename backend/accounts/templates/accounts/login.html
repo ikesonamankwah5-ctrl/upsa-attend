@@ -85,7 +85,7 @@
         <form method="POST">
             {% csrf_token %}
 
-            <input type="hidden" name="next" value="{{ request.GET.next }}">
+            <input type="hidden" name="next" value="{{ next|default:'' }}">
 
             <label>Username</label>
             <input type="text" name="username" placeholder="Enter username" required>

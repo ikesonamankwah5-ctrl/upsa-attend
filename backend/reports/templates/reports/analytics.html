@@ -6,6 +6,10 @@
     <title>Attendance Analytics | UPSA Attend</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Arial, sans-serif;
             background: #f4f6fb;
@@ -15,11 +19,11 @@
         }
 
         .container {
-            max-width: 1150px;
+            max-width: 1250px;
             margin: auto;
         }
 
-        h1 {
+        h1, h2 {
             color: #26356b;
         }
 
@@ -30,6 +34,10 @@
             padding: 11px 18px;
             text-decoration: none;
             border-radius: 6px;
+        }
+
+        .back-button:hover {
+            background: #1b2855;
         }
 
         .cards {
@@ -54,8 +62,74 @@
         }
 
         .card h2 {
-            color: #26356b;
             font-size: 30px;
+        }
+
+        .performance-card {
+            margin-top: 25px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: end;
+            margin: 20px 0;
+            padding: 18px;
+            background: #f4f6fb;
+            border-radius: 8px;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background: white;
+        }
+
+        .filter-button,
+        .reset-button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+        }
+
+        .filter-button {
+            background: #26356b;
+            color: white;
+        }
+
+        .filter-button:hover {
+            background: #1b2855;
+        }
+
+        .reset-button {
+            background: #e5e7eb;
+            color: #333;
+        }
+
+        .reset-button:hover {
+            background: #d1d5db;
+        }
+
+        .table-container {
+            overflow-x: auto;
         }
 
         table {
@@ -63,6 +137,7 @@
             border-collapse: collapse;
             background: white;
             margin-top: 20px;
+            min-width: 950px;
         }
 
         th, td {
@@ -74,6 +149,10 @@
         th {
             background: #26356b;
             color: white;
+        }
+
+        tr:hover {
+            background: #f8f9fd;
         }
 
         .good {
@@ -90,6 +169,24 @@
             color: orange;
             font-weight: bold;
         }
+
+        .empty {
+            text-align: center;
+            padding: 25px;
+            color: #777;
+        }
+
+        @media(max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+
+            .filter-button,
+            .reset-button {
+                width: 100%;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 
@@ -103,7 +200,11 @@
 
     <h1>Attendance Analytics</h1>
 
-    <p>Monitor student attendance performance across your classrooms.</p>
+    <p>
+        Monitor student attendance performance across courses and semesters.
+    </p>
+
+    <!-- SUMMARY CARDS -->
 
     <div class="cards">
 
@@ -113,72 +214,192 @@
         </div>
 
         <div class="card">
-            <h3>Total Lectures</h3>
+            <h3>Total Course Lectures</h3>
             <h2>{{ total_lectures }}</h2>
+        </div>
+
+        <div class="card">
+            <h3>Student Course Records</h3>
+            <h2>{{ student_data|length }}</h2>
         </div>
 
     </div>
 
-    <div class="card">
+    <!-- STUDENT PERFORMANCE -->
+
+    <div class="card performance-card">
 
         <h2>Student Attendance Performance</h2>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Student Name</th>
-                    <th>Index Number</th>
-                    <th>Total Lectures</th>
-                    <th>Present</th>
-                    <th>Absent</th>
-                    <th>Attendance Rate</th>
-                </tr>
-            </thead>
+        <p>
+            Attendance performance is calculated separately for each course.
+            Select a course or semester to view specific results.
+        </p>
 
-            <tbody>
+        <!-- COURSE AND SEMESTER FILTERS -->
 
-                {% for student in student_data %}
+        <form method="GET" action="{% url 'attendance_analytics' %}">
+
+            <div class="filters">
+
+                <div class="filter-group">
+
+                    <label for="semester">Academic Semester</label>
+
+                    <select name="semester" id="semester">
+
+                        <option value="">All Semesters</option>
+
+                        {% for semester in semesters %}
+
+                            <option value="{{ semester.id }}"
+                                {% if selected_semester_id == semester.id|stringformat:"s" %}
+                                    selected
+                                {% endif %}>
+
+                                {{ semester.name }} - {{ semester.academic_year }}
+
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="filter-group">
+
+                    <label for="course">Select Course</label>
+
+                    <select name="course" id="course">
+
+                        <option value="">All Courses</option>
+
+                        {% for course in courses %}
+
+                            <option value="{{ course.id }}"
+                                {% if selected_course_id == course.id|stringformat:"s" %}
+                                    selected
+                                {% endif %}>
+
+                                {{ course.course_code }} - {{ course.course_name }}
+
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <button type="submit" class="filter-button">
+                    Apply Filters
+                </button>
+
+                <a href="{% url 'attendance_analytics' %}"
+                   class="reset-button">
+                    Reset
+                </a>
+
+            </div>
+
+        </form>
+
+        <!-- ATTENDANCE TABLE -->
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
 
                     <tr>
-                        <td>{{ student.name }}</td>
-
-                        <td>{{ student.index_number }}</td>
-
-                        <td>{{ student.total }}</td>
-
-                        <td>{{ student.present }}</td>
-
-                        <td>{{ student.absent }}</td>
-
-                        <td>
-                            {% if student.percentage >= 75 %}
-                                <span class="good">
-                                    {{ student.percentage }}%
-                                </span>
-                            {% elif student.percentage >= 50 %}
-                                <span class="average">
-                                    {{ student.percentage }}%
-                                </span>
-                            {% else %}
-                                <span class="poor">
-                                    {{ student.percentage }}%
-                                </span>
-                            {% endif %}
-                        </td>
+                        <th>Student Name</th>
+                        <th>Index Number</th>
+                        <th>Course</th>
+                        <th>Classroom</th>
+                        <th>Semester</th>
+                        <th>Total Lectures</th>
+                        <th>Present</th>
+                        <th>Absent</th>
+                        <th>Attendance Rate</th>
                     </tr>
 
-                {% empty %}
+                </thead>
 
-                    <tr>
-                        <td colspan="6">
-                            No student attendance data available yet.
-                        </td>
-                    </tr>
+                <tbody>
 
-                {% endfor %}
+                    {% for student in student_data %}
 
-            </tbody>
-        </table>
+                        <tr>
+
+                            <td>{{ student.name }}</td>
+
+                            <td>{{ student.index_number }}</td>
+
+                            <td>
+                                <strong>{{ student.course_code }}</strong><br>
+                                {{ student.course_name }}
+                            </td>
+
+                            <td>{{ student.classroom }}</td>
+
+                            <td>
+                                {{ student.semester.name }}
+                                - {{ student.semester.academic_year }}
+                            </td>
+
+                            <td>{{ student.total }}</td>
+
+                            <td>{{ student.present }}</td>
+
+                            <td>{{ student.absent }}</td>
+
+                            <td>
+
+                                {% if student.percentage >= 75 %}
+
+                                    <span class="good">
+                                        {{ student.percentage }}%
+                                    </span>
+
+                                {% elif student.percentage >= 50 %}
+
+                                    <span class="average">
+                                        {{ student.percentage }}%
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="poor">
+                                        {{ student.percentage }}%
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+
+                            <td colspan="9" class="empty">
+
+                                No attendance data available for the selected filters.
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
 
     </div>
 

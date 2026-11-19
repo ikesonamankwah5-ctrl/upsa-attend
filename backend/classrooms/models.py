@@ -6,8 +6,24 @@ from django.conf import settings
 
 class Classroom(models.Model):
 
+    DIPLOMA = 'DIPLOMA'
+    UNDERGRADUATE = 'UNDERGRADUATE'
+
+    PROGRAMME_TYPE_CHOICES = [
+        (DIPLOMA, 'Diploma'),
+        (UNDERGRADUATE, 'Undergraduate'),
+    ]
+
     name = models.CharField(max_length=100)
     programme = models.CharField(max_length=100)
+
+    programme_type = models.CharField(
+        max_length=20,
+        choices=PROGRAMME_TYPE_CHOICES,
+        null=True,
+        blank=True
+    )
+
     level = models.PositiveIntegerField()
     academic_year = models.CharField(max_length=20)
 

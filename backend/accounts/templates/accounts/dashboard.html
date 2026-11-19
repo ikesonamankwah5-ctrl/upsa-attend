@@ -172,6 +172,10 @@
 
         <a href="{% url 'my_attendance' %}">My Attendance</a>
 
+        {% if request.user.student_profile %}
+            <a href="{% url 'cgpa_dashboard' %}">CGPA Calculator</a>
+        {% endif %}
+
         <a href="/reports/">Attendance Reports</a>
         <a href="{% url 'student_attendance_history' %}">Student Attendance History</a>
         <a href="{% url 'attendance_analytics' %}">Attendance Analytics</a>
@@ -218,6 +222,15 @@
                     <p>View your personal attendance records, classes attended and attendance percentage.</p>
                 </a>
             </div>
+
+            {% if request.user.student_profile %}
+                <div class="card">
+                    <a href="{% url 'cgpa_dashboard' %}">
+                        <h3>CGPA Calculator</h3>
+                        <p>Calculate your CGPA, track your academic progress and estimate your degree classification.</p>
+                    </a>
+                </div>
+            {% endif %}
 
         </div>
 

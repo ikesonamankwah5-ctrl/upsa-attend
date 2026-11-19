@@ -8,6 +8,7 @@ class ClassroomAdmin(admin.ModelAdmin):
     list_display = (
         'name',
         'programme',
+        'programme_type',
         'level',
         'academic_year',
         'created_by',
@@ -16,6 +17,7 @@ class ClassroomAdmin(admin.ModelAdmin):
 
     list_filter = (
         'programme',
+        'programme_type',
         'level',
         'academic_year',
         'is_archived',

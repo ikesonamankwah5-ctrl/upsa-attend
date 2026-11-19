@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CGPA Calculator | UPSA Attend</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6fb;
+            padding: 25px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        .header {
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            color: #253b80;
+            margin-bottom: 8px;
+        }
+
+        .header a {
+            color: #253b80;
+            text-decoration: none;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-card {
+            background: #253b80;
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+        }
+
+        .summary-card h3 {
+            font-size: 15px;
+            margin-bottom: 15px;
+        }
+
+        .summary-card h2 {
+            font-size: 30px;
+            color: white;
+        }
+
+        h2 {
+            color: #253b80;
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 20px;
+            background: #253b80;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4059a5;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 13px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #253b80;
+            color: white;
+        }
+
+        .message {
+            padding: 12px;
+            background: #e6f4ea;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .notice {
+            background: #fff4d6;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            line-height: 1.6;
+        }
+
+        .empty {
+            padding: 20px;
+            text-align: center;
+            color: #777;
+        }
+
+        .classification {
+            border-left: 5px solid #253b80;
+        }
+
+        .classification h1 {
+            color: #253b80;
+            font-size: 28px;
+            margin-top: 10px;
+        }
+
+        .recommendation {
+            border-left: 5px solid #198754;
+        }
+
+        .recommendation h1 {
+            color: #198754;
+            font-size: 26px;
+            margin-top: 10px;
+        }
+
+        .recommendation p {
+            line-height: 1.7;
+        }
+
+        .result-box {
+            border-left: 5px solid #198754;
+            padding: 18px;
+            margin-top: 20px;
+            background: #f0f8f3;
+            border-radius: 6px;
+        }
+
+        .result-box p {
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+
+        .unachievable {
+            border-left-color: #dc3545;
+            background: #fff0f0;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            .card {
+                padding: 17px;
+            }
+
+            table {
+                font-size: 13px;
+            }
+
+            th, td {
+                padding: 9px 6px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <p>
+            <a href="{% url 'dashboard' %}">← Back to Dashboard</a>
+        </p>
+
+        <br>
+
+        <h1>My CGPA Calculator</h1>
+
+        <p>
+            Welcome, {{ student.full_name }}.
+            Track your academic performance throughout your programme.
+        </p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <p class="message">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card">
+
+        <h2>Student Information</h2>
+
+        <p><strong>Name:</strong> {{ student.full_name }}</p>
+
+        <p><strong>Index Number:</strong> {{ student.index_number }}</p>
+
+        <p><strong>Programme:</strong> {{ student.classroom.programme }}</p>
+
+        <p>
+            <strong>Programme Type:</strong>
+            {{ student.classroom.get_programme_type_display|default:"Not assigned" }}
+        </p>
+
+    </div>
+
+    <div class="card classification">
+
+        <h2>Estimated Academic Classification</h2>
+
+        <h1>{{ classification }}</h1>
+
+        <p style="margin-top: 10px; color: #666;">
+            Based on your current CGPA and registered programme type.
+        </p>
+
+        <div class="notice">
+            This is an estimate based on the classification ranges
+            configured in UPSA Attend. It is not an official university award.
+        </div>
+
+    </div>
+
+    <div class="card recommendation">
+
+        <h2>What Should I Target?</h2>
+
+        <h1>{{ recommendation.target_class }}</h1>
+
+        {% if recommendation.target_cgpa %}
+            <p style="margin-top: 12px;">
+                <strong>Target CGPA:</strong>
+                {{ recommendation.target_cgpa|floatformat:2 }}
+            </p>
+        {% endif %}
+
+        <p style="margin-top: 12px;">
+            {{ recommendation.target_message }}
+        </p>
+
+        <div class="notice">
+            This recommendation is based on your current CGPA.
+            Your final achievable classification also depends on
+            your remaining credit hours and future semester results.
+        </div>
+
+    </div>
+
+    <!-- TARGET CLASS CALCULATOR -->
+
+    <div class="card">
+
+        <h2>Target Class Calculator</h2>
+
+        <p>
+            Calculate the average GPA you need in your remaining
+            credit hours to achieve your desired classification.
+        </p>
+
+        {% if not results %}
+
+            <div class="notice">
+                Add your completed semester results first
+                before using this calculator.
+            </div>
+
+        {% else %}
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <input type="hidden" name="action" value="calculate_target">
+
+                <label>What classification do you want to achieve?</label>
+
+                <select name="target_cgpa" required>
+                    <option value="">Select your target</option>
+
+                    {% for option in target_options %}
+                        <option value="{{ option.value }}">
+                            {{ option.label }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <label>Remaining Credit Hours</label>
+
+                <input
+                    type="number"
+                    name="remaining_credits"
+                    min="0.01"
+                    step="0.01"
+                    placeholder="Example: 45"
+                    required
+                >
+
+                <button type="submit">
+                    Calculate Required GPA
+                </button>
+
+            </form>
+
+        {% endif %}
+
+        {% if target_result %}
+
+            <div class="result-box {% if not target_result.achievable %}unachievable{% endif %}">
+
+                <h2>Calculation Result</h2>
+
+                <p>
+                    <strong>Target CGPA:</strong>
+                    {{ target_result.target_cgpa|floatformat:2 }}
+                </p>
+
+                <p>
+                    <strong>Remaining Credits:</strong>
+                    {{ target_result.remaining_credits|floatformat:2 }}
+                </p>
+
+                <p>
+                    <strong>Required Average GPA:</strong>
+                    {{ target_result.required_gpa|floatformat:2 }}
+                </p>
+
+                <p>
+                    <strong>Result:</strong>
+                    {{ target_result.message }}
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+    <!-- REQUIRED SEMESTER GPA CALCULATOR -->
+
+    <div class="card">
+
+        <h2>Required Semester GPA Calculator</h2>
+
+        <p>
+            Find out the GPA you need to earn in your next semester
+            to reach your desired overall CGPA.
+        </p>
+
+        {% if not results %}
+
+            <div class="notice">
+                Add your completed semester results first
+                before using this calculator.
+            </div>
+
+        {% else %}
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="action"
+                    value="calculate_semester_gpa"
+                >
+
+                <label>Desired Final CGPA</label>
+
+                <input
+                    type="number"
+                    name="semester_target_cgpa"
+                    min="0.01"
+                    max="4"
+                    step="0.01"
+                    placeholder="Example: 3.60"
+                    required
+                >
+
+                <label>Upcoming Semester Credit Hours</label>
+
+                <input
+                    type="number"
+                    name="semester_credits"
+                    min="0.01"
+                    step="0.01"
+                    placeholder="Example: 18"
+                    required
+                >
+
+                <button type="submit">
+                    Calculate Required Semester GPA
+                </button>
+
+            </form>
+
+        {% endif %}
+
+        {% if semester_gpa_result %}
+
+            <div class="result-box {% if not semester_gpa_result.achievable %}unachievable{% endif %}">
+
+                <h2>Semester GPA Calculation Result</h2>
+
+                <p>
+                    <strong>Current CGPA:</strong>
+                    {{ cgpa|floatformat:2 }}
+                </p>
+
+                <p>
+                    <strong>Completed Credit Hours:</strong>
+                    {{ total_credits|floatformat:2 }}
+                </p>
+
+                <p>
+                    <strong>Upcoming Semester Credits:</strong>
+                    {{ semester_gpa_result.semester_credits|floatformat:2 }}
+                </p>
+
+                <p>
+                    <strong>Desired Final CGPA:</strong>
+                    {{ semester_gpa_result.target_cgpa|floatformat:2 }}
+                </p>
+
+                <p>
+                    <strong>Required Semester GPA:</strong>
+                    {{ semester_gpa_result.required_gpa|floatformat:2 }}
+                </p>
+
+                <p>
+                    <strong>Result:</strong>
+                    {{ semester_gpa_result.message }}
+                </p>
+
+            </div>
+
+        {% endif %}
+
+        <div class="notice">
+            This calculator assumes that the upcoming semester
+            is the only remaining semester being considered.
+            It uses your entered credit hours and current CGPA.
+        </div>
+
+    </div>
+
+    <!-- ACADEMIC SUMMARY -->
+
+    <div class="summary">
+
+        <div class="summary-card">
+            <h3>Current CGPA</h3>
+            <h2>{{ cgpa|floatformat:2 }}</h2>
+        </div>
+
+        <div class="summary-card">
+            <h3>Total Credit Hours</h3>
+            <h2>{{ total_credits|floatformat:2 }}</h2>
+        </div>
+
+        <div class="summary-card">
+            <h3>Semesters Recorded</h3>
+            <h2>{{ results.count }}</h2>
+        </div>
+
+    </div>
+
+    <br>
+
+    <!-- ADD SEMESTER RESULT -->
+
+    <div class="card">
+
+        <h2>Add Semester Result</h2>
+
+        <p>
+            Enter the GPA and total credit hours for a completed semester.
+        </p>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <input type="hidden" name="action" value="add_semester">
+
+            <label>Academic Year</label>
+
+            <input
+                type="text"
+                name="academic_year"
+                placeholder="Example: 2025/2026"
+                maxlength="20"
+                required
+            >
+
+            <label>Semester</label>
+
+            <input
+                type="text"
+                name="semester_name"
+                placeholder="Example: First Semester"
+                maxlength="50"
+                required
+            >
+
+            <label>Semester GPA</label>
+
+            <input
+                type="number"
+                name="gpa"
+                min="0"
+                max="4"
+                step="0.01"
+                placeholder="Example: 3.45"
+                required
+            >
+
+            <label>Total Credit Hours</label>
+
+            <input
+                type="number"
+                name="credit_hours"
+                min="0.01"
+                step="0.01"
+                placeholder="Example: 18"
+                required
+            >
+
+            <button type="submit">Save Semester Result</button>
+
+        </form>
+
+    </div>
+
+    <!-- ACADEMIC HISTORY -->
+
+    <div class="card">
+
+        <h2>My Academic History</h2>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Academic Year</th>
+                    <th>Semester</th>
+                    <th>GPA</th>
+                    <th>Credit Hours</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for result in results %}
+
+                    <tr>
+                        <td>{{ result.academic_year }}</td>
+                        <td>{{ result.semester_name }}</td>
+                        <td>{{ result.gpa|floatformat:2 }}</td>
+                        <td>{{ result.credit_hours|floatformat:2 }}</td>
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+                        <td colspan="4" class="empty">
+                            You have not entered any semester results yet.
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div class="notice">
+
+        <strong>Important:</strong>
+
+        <p>
+            This calculator provides estimated academic results
+            based on the semester GPA and credit hours you enter.
+            It is not an official UPSA academic record or classification.
+        </p>
+
+    </div>
+
+</div>
+
+</body>
+</html>

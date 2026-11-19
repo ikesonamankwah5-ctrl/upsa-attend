@@ -164,6 +164,20 @@
 
             </select>
 
+            <label>Programme Type</label>
+
+            <select name="programme_type" required>
+                <option value="">Choose programme type</option>
+                <option value="UNDERGRADUATE">Undergraduate</option>
+                <option value="DIPLOMA">Diploma</option>
+            </select>
+
+            <p>
+                Select the correct programme type for the students
+                in this classroom. This determines which CGPA and
+                classification rules will apply.
+            </p>
+
             <label>Choose Excel or CSV File</label>
 
             <input type="file"
@@ -179,7 +193,7 @@
 
             <strong>File requirements</strong>
 
-            <p>Your first row must contain these exact column headings:</p>
+            <p>Your first row must contain these column headings:</p>
 
             <p><strong>full_name, index_number</strong></p>
 

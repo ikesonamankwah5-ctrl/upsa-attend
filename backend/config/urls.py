@@ -7,7 +7,12 @@ from . import views
 urlpatterns = [
     path('sw.js', views.service_worker, name='service_worker'),
 
-    path('admin/', admin.site.urls),
+   path(
+    'admin/restore-career-catalogue/',
+    views.restore_career_catalogue,
+    name='restore_career_catalogue'
+),
+ path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('classrooms/', include('classrooms.urls')),
     path('students/', include('students.urls')),

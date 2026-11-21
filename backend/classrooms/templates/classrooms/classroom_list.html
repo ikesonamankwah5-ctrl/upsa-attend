@@ -1,230 +1,473 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Classroom | UPSA Attend</title>
+{% extends "base.html" %}
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6fb;
-            margin: 0;
-            padding: 30px;
+{% block title %}Classroom Management | UPSA Attend{% endblock %}
+
+{% block page_heading %}Classroom Management{% endblock %}
+{% block page_subheading %}Create, organise and manage your academic classrooms.{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-intro {
+        margin-bottom: 24px;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .section-card {
+        background: #fff;
+        border: 1px solid #e8edf5;
+        border-radius: 16px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 5px 18px rgba(15, 23, 42, 0.035);
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 22px;
+        flex-wrap: wrap;
+    }
+
+    .section-header h2 {
+        margin: 0;
+        color: #172554;
+        font-size: 19px;
+    }
+
+    .section-description {
+        color: #64748b;
+        font-size: 13px;
+        margin-top: 6px;
+    }
+
+    .classroom-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 18px;
+    }
+
+    .classroom-card {
+        border: 1px solid #e7eaf2;
+        border-radius: 13px;
+        padding: 20px;
+        background: #fff;
+        transition: transform .2s, box-shadow .2s;
+    }
+
+    .classroom-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 22px rgba(15, 23, 42, .07);
+    }
+
+    .classroom-card h3 {
+        margin: 0 0 15px;
+        color: #172554;
+        font-size: 17px;
+    }
+
+    .classroom-detail {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 9px 0;
+        border-bottom: 1px solid #f1f3f8;
+        font-size: 13px;
+    }
+
+    .classroom-detail span:first-child {
+        color: #64748b;
+    }
+
+    .classroom-detail span:last-child {
+        color: #334155;
+        font-weight: 600;
+        text-align: right;
+    }
+
+    .classroom-actions {
+        display: flex;
+        gap: 9px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+    }
+
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 14px;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+    }
+
+    .qr-btn {
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .archive-btn {
+        background: #fff1f2;
+        color: #be123c;
+    }
+
+    .restore-btn {
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .create-btn {
+        background: #5145cd;
+        color: #fff;
+        padding: 12px 20px;
+        margin-top: 18px;
+    }
+
+    .action-btn:hover {
+        opacity: .85;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 17px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        color: #334155;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .form-group input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px 13px;
+        border: 1px solid #dbe2ee;
+        border-radius: 9px;
+        background: #fff;
+        font-family: inherit;
+        font-size: 14px;
+        outline: none;
+    }
+
+    .form-group input:focus {
+        border-color: #6558df;
+        box-shadow: 0 0 0 3px rgba(101, 88, 223, .1);
+    }
+
+    .empty-state {
+        padding: 35px 15px;
+        text-align: center;
+        color: #64748b;
+        background: #f8fafc;
+        border: 1px dashed #dbe2ee;
+        border-radius: 12px;
+        font-size: 14px;
+    }
+
+    .empty-state strong {
+        display: block;
+        color: #334155;
+        margin-bottom: 6px;
+        font-size: 15px;
+    }
+
+    .archive-heading {
+        color: #9f1239 !important;
+    }
+
+    @media (max-width: 600px) {
+        .section-card {
+            padding: 18px;
         }
 
-        .container {
-            max-width: 800px;
-            margin: auto;
+        .form-grid {
+            grid-template-columns: 1fr;
         }
 
-        .card {
-            background: white;
-            padding: 25px;
-            margin-bottom: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        .form-group.full-width {
+            grid-column: auto;
         }
 
-        h1, h2 {
-            color: #253b80;
+        .classroom-grid {
+            grid-template-columns: 1fr;
         }
 
-        label {
-            display: block;
-            margin-top: 15px;
-            margin-bottom: 6px;
+        .classroom-actions {
+            flex-direction: column;
         }
 
-        input {
+        .action-btn {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
             box-sizing: border-box;
         }
+    }
+</style>
+{% endblock %}
 
-        button, .qr-btn {
-            padding: 10px 18px;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-        }
 
-        .create-btn {
-            margin-top: 20px;
-            background: #253b80;
-        }
+{% block content %}
 
-        .archive-btn {
-            background: #c0392b;
-        }
+<div class="page-intro">
+    Manage your classrooms and access their attendance QR codes.
+</div>
 
-        .restore-btn {
-            background: #218838;
-        }
 
-        .qr-btn {
-            background: #16803c;
-            margin: 5px 0;
-        }
+{% if administrator %}
+<section class="section-card">
 
-        .classroom {
-            border-bottom: 1px solid #ddd;
-            padding: 15px 0;
-        }
-
-        a {
-            color: #253b80;
-        }
-
-        .action-form {
-            display: inline-block;
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="container">
-
-    <p><a href="{% url 'dashboard' %}">← Back to Dashboard</a></p>
-
-    <h1>My Classroom</h1>
-    <p>Create and manage your classrooms on UPSA Attend.</p>
-
-    {% if administrator %}
-    <div class="card">
-
-        <h2>Create a Classroom</h2>
-
-        <form method="POST">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="create">
-
-            <label>Classroom Name</label>
-            <input type="text" name="name"
-                   placeholder="e.g. Business Administration 14" required>
-
-            <label>Programme</label>
-            <input type="text" name="programme"
-                   placeholder="e.g. Business Administration" required>
-
-            <label>Level</label>
-            <input type="number" name="level"
-                   placeholder="e.g. 300" min="1" required>
-
-            <label>Academic Year</label>
-            <input type="text" name="academic_year"
-                   placeholder="e.g. 2026/2027" required>
-
-            <button type="submit" class="create-btn">
-                Create Classroom
-            </button>
-        </form>
-
+    <div class="section-header">
+        <div>
+            <h2>Create a Classroom</h2>
+            <div class="section-description">
+                Add a new academic classroom to UPSA Attend.
+            </div>
+        </div>
     </div>
-    {% endif %}
 
-    <div class="card">
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="create">
 
-        <h2>Active Classrooms</h2>
+        <div class="form-grid">
+
+            <div class="form-group full-width">
+                <label for="classroom-name">Classroom Name</label>
+                <input
+                    type="text"
+                    id="classroom-name"
+                    name="name"
+                    placeholder="e.g. Business Administration 14"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="programme">Programme</label>
+                <input
+                    type="text"
+                    id="programme"
+                    name="programme"
+                    placeholder="e.g. Business Administration"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="level">Level</label>
+                <input
+                    type="number"
+                    id="level"
+                    name="level"
+                    placeholder="e.g. 300"
+                    min="1"
+                    required
+                >
+            </div>
+
+            <div class="form-group full-width">
+                <label for="academic-year">Academic Year</label>
+                <input
+                    type="text"
+                    id="academic-year"
+                    name="academic_year"
+                    placeholder="e.g. 2026/2027"
+                    required
+                >
+            </div>
+
+        </div>
+
+        <button type="submit" class="action-btn create-btn">
+            + Create Classroom
+        </button>
+    </form>
+
+</section>
+{% endif %}
+
+
+<section class="section-card">
+
+    <div class="section-header">
+        <div>
+            <h2>Active Classrooms</h2>
+            <div class="section-description">
+                View and manage currently active classrooms.
+            </div>
+        </div>
+    </div>
+
+    <div class="classroom-grid">
 
         {% for classroom in classrooms %}
 
-            <div class="classroom">
+        <div class="classroom-card">
 
-                <h3>{{ classroom.name }}</h3>
+            <h3>{{ classroom.name }}</h3>
 
-                <p>Programme: {{ classroom.programme }}</p>
-                <p>Level: {{ classroom.level }}</p>
-                <p>Academic Year: {{ classroom.academic_year }}</p>
+            <div class="classroom-detail">
+                <span>Programme</span>
+                <span>{{ classroom.programme }}</span>
+            </div>
+
+            <div class="classroom-detail">
+                <span>Level</span>
+                <span>{{ classroom.level }}</span>
+            </div>
+
+            <div class="classroom-detail">
+                <span>Academic Year</span>
+                <span>{{ classroom.academic_year }}</span>
+            </div>
+
+            <div class="classroom-actions">
 
                 <a
                     href="{% url 'classroom_qr_code' classroom.id %}"
                     target="_blank"
-                    class="qr-btn">
+                    class="action-btn qr-btn"
+                >
                     View / Print QR Code
                 </a>
 
                 {% if administrator %}
+                <form method="POST">
+                    {% csrf_token %}
 
-                    <form method="POST" class="action-form">
-                        {% csrf_token %}
+                    <input
+                        type="hidden"
+                        name="classroom_id"
+                        value="{{ classroom.id }}"
+                    >
 
-                        <input type="hidden"
-                               name="classroom_id"
-                               value="{{ classroom.id }}">
+                    <input
+                        type="hidden"
+                        name="action"
+                        value="archive"
+                    >
 
-                        <input type="hidden"
-                               name="action"
-                               value="archive">
-
-                        <button type="submit" class="archive-btn">
-                            Archive Classroom
-                        </button>
-                    </form>
-
+                    <button
+                        type="submit"
+                        class="action-btn archive-btn"
+                    >
+                        Archive
+                    </button>
+                </form>
                 {% endif %}
 
             </div>
 
+        </div>
+
         {% empty %}
 
-            <p>No active classrooms available.</p>
+        <div class="empty-state" style="grid-column: 1 / -1;">
+            <strong>No Active Classrooms</strong>
+            There are currently no active classrooms available to display.
+        </div>
 
         {% endfor %}
 
     </div>
 
-    {% if administrator %}
+</section>
 
-    <div class="card">
 
-        <h2>Archived Classrooms</h2>
+{% if administrator %}
+<section class="section-card">
+
+    <div class="section-header">
+        <div>
+            <h2 class="archive-heading">Archived Classrooms</h2>
+            <div class="section-description">
+                Restore classrooms that were previously archived.
+            </div>
+        </div>
+    </div>
+
+    <div class="classroom-grid">
 
         {% for classroom in archived_classrooms %}
 
-            <div class="classroom">
+        <div class="classroom-card">
 
-                <h3>{{ classroom.name }}</h3>
+            <h3>{{ classroom.name }}</h3>
 
-                <p>Programme: {{ classroom.programme }}</p>
-                <p>Level: {{ classroom.level }}</p>
-                <p>Academic Year: {{ classroom.academic_year }}</p>
+            <div class="classroom-detail">
+                <span>Programme</span>
+                <span>{{ classroom.programme }}</span>
+            </div>
 
-                <form method="POST" class="action-form">
+            <div class="classroom-detail">
+                <span>Level</span>
+                <span>{{ classroom.level }}</span>
+            </div>
+
+            <div class="classroom-detail">
+                <span>Academic Year</span>
+                <span>{{ classroom.academic_year }}</span>
+            </div>
+
+            <div class="classroom-actions">
+
+                <form method="POST">
                     {% csrf_token %}
 
-                    <input type="hidden"
-                           name="classroom_id"
-                           value="{{ classroom.id }}">
+                    <input
+                        type="hidden"
+                        name="classroom_id"
+                        value="{{ classroom.id }}"
+                    >
 
-                    <input type="hidden"
-                           name="action"
-                           value="restore">
+                    <input
+                        type="hidden"
+                        name="action"
+                        value="restore"
+                    >
 
-                    <button type="submit" class="restore-btn">
+                    <button
+                        type="submit"
+                        class="action-btn restore-btn"
+                    >
                         Restore Classroom
                     </button>
                 </form>
 
             </div>
 
+        </div>
+
         {% empty %}
 
-            <p>No archived classrooms.</p>
+        <div class="empty-state" style="grid-column: 1 / -1;">
+            <strong>No Archived Classrooms</strong>
+            Your archived classrooms will appear here.
+        </div>
 
         {% endfor %}
 
     </div>
 
-    {% endif %}
+</section>
+{% endif %}
 
-</div>
-
-</body>
-</html>
+{% endblock %}

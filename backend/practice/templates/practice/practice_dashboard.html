@@ -1,0 +1,624 @@
+{% extends 'base.html' %}
+
+{% block title %}Practice Centre | UPSA Attend{% endblock %}
+
+{% block extra_css %}
+<style>
+    .practice-container {
+        max-width: 1100px;
+        margin: auto;
+    }
+
+    .practice-hero {
+        background: linear-gradient(135deg, #172554, #5b21b6);
+        color: white;
+        padding: 35px;
+        border-radius: 18px;
+        margin-bottom: 28px;
+    }
+
+    .practice-hero h2 {
+        font-size: 26px;
+        margin-bottom: 10px;
+    }
+
+    .practice-hero p {
+        color: #e0e7ff;
+        line-height: 1.7;
+        max-width: 650px;
+    }
+
+    .start-button {
+        display: inline-block;
+        margin-top: 18px;
+        padding: 13px 22px;
+        background: white;
+        color: #4c1d95;
+        border-radius: 9px;
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+    .section-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+
+    .section-title {
+        font-size: 20px;
+        color: #172554;
+        margin: 0;
+    }
+
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 18px;
+        margin-bottom: 35px;
+    }
+
+    .feature-card {
+        background: white;
+        padding: 22px;
+        border-radius: 14px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .feature-card h3 {
+        margin: 12px 0 8px;
+        font-size: 16px;
+        color: #172554;
+    }
+
+    .feature-card p {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .feature-icon {
+        font-size: 26px;
+    }
+
+    .premium-section {
+        background: #faf9ff;
+        border: 1px solid #ddd6fe;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 35px;
+    }
+
+    .premium-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+
+    .premium-heading h2 {
+        color: #4c1d95;
+        font-size: 20px;
+    }
+
+    .premium-label {
+        background: #ede9fe;
+        color: #5b21b6;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+    }
+
+    .premium-card {
+        background: white;
+        padding: 20px;
+        border: 1px solid #e9d5ff;
+        border-radius: 12px;
+    }
+
+    .premium-card h3 {
+        color: #4c1d95;
+        font-size: 15px;
+        margin: 10px 0 7px;
+    }
+
+    .premium-card p {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    /* CLICKABLE PREMIUM CARDS */
+
+    .premium-card-link {
+        display: block;
+        text-decoration: none;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .premium-card-link:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(91, 33, 182, 0.12);
+    }
+
+    .premium-card-link p {
+        text-decoration: none;
+    }
+
+    .premium-card-action {
+        display: inline-block;
+        margin-top: 12px;
+        color: #6d28d9;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .premium-note {
+        margin-top: 17px;
+        font-size: 12px;
+        color: #6b21a8;
+        line-height: 1.6;
+    }
+
+    .session-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 14px;
+    }
+
+    .session-card h3 {
+        color: #172554;
+        margin-bottom: 8px;
+    }
+
+    .session-details {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.8;
+    }
+
+    .status {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        background: #ede9fe;
+        color: #5b21b6;
+        margin-top: 10px;
+    }
+
+    .button-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .action-button {
+        display: inline-block;
+        border: none;
+        padding: 11px 18px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 13px;
+    }
+
+    .extract-button {
+        background: #ede9fe;
+        color: #5b21b6;
+    }
+
+    .generate-button {
+        background: #5b21b6;
+        color: white;
+    }
+
+    .exam-button {
+        background: #059669;
+        color: white;
+    }
+
+    .results-button {
+        background: #172554;
+        color: white;
+    }
+
+    .delete-button {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .clear-history-button {
+        background: #dc2626;
+        color: white;
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .generate-button:hover {
+        background: #4c1d95;
+        color: white;
+    }
+
+    .extract-button:hover {
+        background: #ddd6fe;
+    }
+
+    .exam-button:hover {
+        background: #047857;
+        color: white;
+    }
+
+    .results-button:hover {
+        background: #1e3a8a;
+        color: white;
+    }
+
+    .delete-button:hover {
+        background: #fecaca;
+    }
+
+    .clear-history-button:hover {
+        background: #991b1b;
+    }
+
+    .question-count {
+        color: #475569;
+        font-size: 13px;
+        margin-top: 10px;
+    }
+
+    .empty-state {
+        background: white;
+        border: 1px dashed #cbd5e1;
+        padding: 35px 20px;
+        text-align: center;
+        border-radius: 14px;
+        color: #64748b;
+    }
+
+    @media(max-width: 600px) {
+        .practice-hero {
+            padding: 24px;
+        }
+
+        .practice-hero h2 {
+            font-size: 22px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block page_heading %}
+Practice Centre
+{% endblock %}
+
+{% block page_subheading %}
+Learn, practise and prepare for your examinations.
+{% endblock %}
+
+{% block content %}
+
+<div class="practice-container">
+
+    <!-- WELCOME SECTION -->
+
+    <div class="practice-hero">
+
+        <h2>Welcome to Your Practice Centre</h2>
+
+        <p>
+            Upload your lecture notes, create practice questions,
+            take timed examinations and monitor your learning progress.
+            Prepare smarter and build confidence before your examinations.
+        </p>
+
+        <a href="{% url 'create_practice_session' %}" class="start-button">
+            + Start New Practice
+        </a>
+
+    </div>
+
+
+    <!-- FREE FEATURES -->
+
+    <h2 class="section-title">Available Practice Features</h2>
+
+    <div class="feature-grid">
+
+        <div class="feature-card">
+            <div class="feature-icon">📚</div>
+            <h3>Upload Lecture Notes</h3>
+            <p>
+                Upload up to 10 lecture materials in one practice session.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📝</div>
+            <h3>Practice Questions</h3>
+            <p>
+                Generate basic practice questions from your uploaded learning materials.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">⏱</div>
+            <h3>Timed Examinations</h3>
+            <p>
+                Practise with countdown timers and examination-style questions.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Practice Results</h3>
+            <p>
+                Review your examination scores and previous practice sessions.
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- PREMIUM FEATURES -->
+
+    <div class="premium-section">
+
+        <div class="premium-heading">
+
+            <h2>Premium Learning Experience</h2>
+
+            <span class="premium-label">PREMIUM</span>
+
+        </div>
+
+        <div class="feature-grid">
+
+            <a href="{% url 'subscriptions:premium_feature' 'question-generation' %}"
+               class="premium-card premium-card-link">
+
+                <div class="feature-icon">✧</div>
+
+                <h3>AI Question Generation</h3>
+
+                <p>
+                    Generate intelligent, context-aware questions
+                    from your lecture notes using AI.
+                </p>
+
+                <span class="premium-card-action">
+                    Explore Feature →
+                </span>
+
+            </a>
+
+
+            <a href="{% url 'subscriptions:premium_feature' 'ai-explanations' %}"
+               class="premium-card premium-card-link">
+
+                <div class="feature-icon">💡</div>
+
+                <h3>AI Explanations</h3>
+
+                <p>
+                    Understand why answers are correct and receive
+                    detailed explanations.
+                </p>
+
+                <span class="premium-card-action">
+                    Explore Feature →
+                </span>
+
+            </a>
+
+
+            <a href="{% url 'subscriptions:premium_feature' 'model-answers' %}"
+               class="premium-card premium-card-link">
+
+                <div class="feature-icon">📖</div>
+
+                <h3>AI Model Answers</h3>
+
+                <p>
+                    Access structured model answers to help you
+                    understand and improve your theory responses.
+                </p>
+
+                <span class="premium-card-action">
+                    Explore Feature →
+                </span>
+
+            </a>
+
+
+            <a href="{% url 'subscriptions:premium_feature' 'advanced-analytics' %}"
+               class="premium-card premium-card-link">
+
+                <div class="feature-icon">📈</div>
+
+                <h3>Advanced Analytics</h3>
+
+                <p>
+                    Identify weak areas, monitor performance trends
+                    and track your learning progress.
+                </p>
+
+                <span class="premium-card-action">
+                    Explore Feature →
+                </span>
+
+            </a>
+
+        </div>
+
+        <p class="premium-note">
+            Premium AI features are planned and will become available
+            when the AI service is activated. Your existing free practice
+            features remain available.
+        </p>
+
+    </div>
+
+
+    <!-- PRACTICE HISTORY -->
+
+    <div class="section-heading">
+
+        <h2 class="section-title">My Practice History</h2>
+
+        {% if sessions %}
+
+            <form
+                method="POST"
+                action="{% url 'clear_practice_history' %}"
+                onsubmit="return confirm('Are you sure you want to delete ALL your practice history, including questions, saved answers and uploaded notes? This action cannot be undone.');"
+            >
+
+                {% csrf_token %}
+
+                <button type="submit" class="clear-history-button">
+                    Clear All History
+                </button>
+
+            </form>
+
+        {% endif %}
+
+    </div>
+
+
+    {% if sessions %}
+
+        {% for session in sessions %}
+
+            <div class="session-card">
+
+                <h3>{{ session.course_name }}</h3>
+
+                <div class="session-details">
+
+                    {% if session.topic %}
+                        Topic: {{ session.topic }}<br>
+                    {% endif %}
+
+                    Difficulty: {{ session.get_difficulty_display }}<br>
+
+                    Question Format: {{ session.get_question_format_display }}<br>
+
+                    Mode: {{ session.get_mode_display }}<br>
+
+                    Questions Requested: {{ session.number_of_questions }}<br>
+
+                    Time Limit: {{ session.time_limit_minutes }} minutes<br>
+
+                    Uploaded Materials: {{ session.materials.count }}
+
+                </div>
+
+                <span class="status">
+                    {{ session.get_status_display }}
+                </span>
+
+                <div class="question-count">
+                    Generated Questions: {{ session.questions.count }}
+                </div>
+
+                <div class="button-group">
+
+                    {% if not session.questions.exists %}
+
+                        <form method="POST" action="{% url 'extract_practice_materials' session.id %}">
+
+                            {% csrf_token %}
+
+                            <button type="submit" class="action-button extract-button">
+                                Extract Lecture Notes
+                            </button>
+
+                        </form>
+
+                        <form method="POST" action="{% url 'generate_session_questions' session.id %}">
+
+                            {% csrf_token %}
+
+                            <button type="submit" class="action-button generate-button">
+                                Generate Questions
+                            </button>
+
+                        </form>
+
+                    {% elif session.status == 'COMPLETED' %}
+
+                        <a href="{% url 'practice_results' session.id %}" class="action-button results-button">
+                            View Results
+                        </a>
+
+                    {% else %}
+
+                        <a href="{% url 'take_practice_session' session.id %}" class="action-button exam-button">
+
+                            {% if session.started_at %}
+                                Continue Examination
+                            {% else %}
+                                Start Examination
+                            {% endif %}
+
+                        </a>
+
+                    {% endif %}
+
+                    <form
+                        method="POST"
+                        action="{% url 'delete_practice_session' session.id %}"
+                        onsubmit="return confirm('Delete this practice session, its questions, saved answers and uploaded notes? This action cannot be undone.');"
+                    >
+
+                        {% csrf_token %}
+
+                        <button type="submit" class="action-button delete-button">
+                            Delete Session
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div class="empty-state">
+
+            <h3>No Practice Sessions Yet</h3>
+
+            <p>
+                Your practice history will appear here after you create
+                your first session.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

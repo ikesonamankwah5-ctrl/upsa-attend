@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+
+{% block title %}Study Connect | UPSA Attend{% endblock %}
+
+{% block extra_css %}
+<style>
+    .study-container {
+        max-width: 1150px;
+        margin: 30px auto;
+        padding: 20px;
+    }
+
+    .study-hero {
+        background: linear-gradient(135deg, #172554, #5b21b6);
+        color: white;
+        padding: 35px;
+        border-radius: 18px;
+        margin-bottom: 30px;
+    }
+
+    .study-hero h2 {
+        font-size: 28px;
+        margin-bottom: 10px;
+    }
+
+    .study-hero p {
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    .study-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-bottom: 25px;
+    }
+
+    .study-btn {
+        display: inline-block;
+        background: #5b21b6;
+        color: white;
+        padding: 11px 20px;
+        border-radius: 9px;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .study-btn:hover {
+        background: #4c1d95;
+        color: white;
+    }
+
+    .study-search {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .study-search input {
+        padding: 11px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        min-width: 220px;
+    }
+
+    .study-search button {
+        background: #172554;
+        color: white;
+        border: none;
+        padding: 11px 18px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .study-section {
+        margin-bottom: 35px;
+    }
+
+    .study-section h3 {
+        margin-bottom: 18px;
+        color: #172554;
+    }
+
+    .study-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+    }
+
+    .study-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 22px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    .study-card h4 {
+        color: #172554;
+        margin-bottom: 10px;
+    }
+
+    .study-card p {
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .study-meta {
+        font-size: 13px;
+        color: #64748b;
+        margin: 12px 0;
+    }
+
+    .study-badge {
+        display: inline-block;
+        background: #ede9fe;
+        color: #5b21b6;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        margin-bottom: 12px;
+    }
+
+    .study-empty {
+        background: #f8fafc;
+        padding: 25px;
+        border-radius: 12px;
+        color: #64748b;
+        text-align: center;
+    }
+
+    .study-card-link {
+        display: inline-block;
+        margin-top: 10px;
+        color: #5b21b6;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .study-card-link:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+        .study-container {
+            padding: 12px;
+        }
+
+        .study-hero {
+            padding: 25px;
+        }
+
+        .study-search input {
+            min-width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="study-container">
+
+    <section class="study-hero">
+        <h2>📚 Study Connect</h2>
+        <p>
+            Connect with fellow UPSA students, create study groups,
+            collaborate on difficult courses and organise revision sessions.
+        </p>
+    </section>
+
+    <div class="study-actions">
+
+        <a href="{% url 'create_study_group' %}" class="study-btn">
+            + Create Study Group
+        </a>
+
+        <form method="GET" class="study-search">
+            <input
+                type="text"
+                name="q"
+                placeholder="Search groups or courses..."
+                value="{{ search_query }}"
+            >
+            <button type="submit">Search</button>
+        </form>
+
+    </div>
+
+    {% if pending_requests %}
+    <section class="study-section">
+        <h3>⏳ Pending Requests</h3>
+
+        <div class="study-grid">
+            {% for request_item in pending_requests %}
+            <div class="study-card">
+                <h4>{{ request_item.group.title }}</h4>
+                <p>Your request to join this private group is awaiting approval.</p>
+                <a
+                    href="{% url 'study_group_detail' request_item.group.id %}"
+                    class="study-card-link"
+                >
+                    View Group →
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="study-section">
+        <h3>👥 My Study Groups</h3>
+
+        {% if my_groups %}
+        <div class="study-grid">
+
+            {% for group in my_groups %}
+            <div class="study-card">
+
+                <span class="study-badge">Member</span>
+
+                <h4>{{ group.title }}</h4>
+
+                <p>{{ group.description|truncatewords:20 }}</p>
+
+                <div class="study-meta">
+                    📖 {{ group.course }}<br>
+                    🎓 {{ group.programme }}<br>
+                    📚 {{ group.academic_level }}<br>
+                    👥 {{ group.member_count }} members
+                </div>
+
+                <a
+                    href="{% url 'study_group_detail' group.id %}"
+                    class="study-card-link"
+                >
+                    Open Study Group →
+                </a>
+
+            </div>
+            {% endfor %}
+
+        </div>
+        {% else %}
+        <div class="study-empty">
+            You haven't joined any study groups yet.
+        </div>
+        {% endif %}
+
+    </section>
+
+    <section class="study-section">
+        <h3>🌍 Discover Study Groups</h3>
+
+        {% if groups %}
+        <div class="study-grid">
+
+            {% for group in groups %}
+            <div class="study-card">
+
+                <span class="study-badge">Public Group</span>
+
+                <h4>{{ group.title }}</h4>
+
+                <p>{{ group.description|truncatewords:20 }}</p>
+
+                <div class="study-meta">
+                    📖 {{ group.course }}<br>
+                    🎓 {{ group.programme }}<br>
+                    📚 {{ group.academic_level }}<br>
+                    👥 {{ group.member_count }} members
+                </div>
+
+                <a
+                    href="{% url 'study_group_detail' group.id %}"
+                    class="study-card-link"
+                >
+                    Explore Group →
+                </a>
+
+            </div>
+            {% endfor %}
+
+        </div>
+        {% else %}
+        <div class="study-empty">
+            No public study groups found. Try another search or create one.
+        </div>
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}

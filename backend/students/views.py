@@ -19,6 +19,24 @@ def is_administrator(user):
     )
 
 
+def is_lecturer(user):
+    return user.groups.filter(name="Lecturer").exists()
+
+
+def is_course_representative(user):
+    return user.groups.filter(
+        name="Course Representative"
+    ).exists()
+
+
+def can_manage_students(user):
+    return (
+        is_administrator(user)
+        or is_lecturer(user)
+        or is_course_representative(user)
+    )
+
+
 def get_user_classrooms(user):
 
     if is_administrator(user):
@@ -32,6 +50,11 @@ def get_user_classrooms(user):
 
 @login_required
 def student_list(request):
+
+    if not can_manage_students(request.user):
+        raise PermissionDenied(
+            "You do not have permission to access Student Management."
+        )
 
     classrooms = get_user_classrooms(request.user)
 
@@ -86,6 +109,11 @@ def student_list(request):
 @login_required
 def bulk_import_students(request):
 
+    if not can_manage_students(request.user):
+        raise PermissionDenied(
+            "You do not have permission to import students."
+        )
+
     classrooms = get_user_classrooms(request.user)
 
     if request.method == 'POST':
@@ -115,8 +143,6 @@ def bulk_import_students(request):
             )
             return redirect('student_list')
 
-        # Prevent lecturers and representatives from changing
-        # an already assigned programme type.
         if (
             classroom.programme_type
             and classroom.programme_type != programme_type

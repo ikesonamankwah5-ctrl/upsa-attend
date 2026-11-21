@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ opportunity.title }} | UPSA Attend{% endblock %}
+
+{% block extra_css %}
+<style>
+.career-container {
+    max-width:950px;
+    margin:auto;
+    padding:25px;
+}
+.back-link {
+    display:inline-block;
+    color:#6c3483;
+    text-decoration:none;
+    font-weight:600;
+    margin-bottom:20px;
+}
+.detail-card {
+    background:white;
+    padding:35px;
+    border-radius:16px;
+    border:1px solid #eee;
+    box-shadow:0 4px 15px rgba(0,0,0,.04);
+}
+.category-tag {
+    display:inline-block;
+    background:#f1e6f8;
+    color:#6c3483;
+    padding:7px 13px;
+    border-radius:20px;
+    font-size:13px;
+    margin-bottom:15px;
+}
+.detail-card h1 {
+    color:#552583;
+    font-size:29px;
+    margin-bottom:10px;
+}
+.organisation {
+    font-size:18px;
+    font-weight:600;
+    color:#555;
+    margin-bottom:20px;
+}
+.info-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:15px;
+    margin:25px 0;
+}
+.info-item {
+    background:#faf7fc;
+    padding:15px;
+    border-radius:10px;
+}
+.info-item small {
+    display:block;
+    color:#888;
+    margin-bottom:6px;
+}
+.info-item strong { color:#444; }
+.content-section { margin-top:30px; }
+.content-section h2 {
+    font-size:19px;
+    color:#552583;
+    margin-bottom:12px;
+}
+.content-section p {
+    color:#555;
+    line-height:1.8;
+    white-space:pre-line;
+}
+.apply-btn {
+    display:inline-block;
+    background:#6c3483;
+    color:white;
+    padding:14px 25px;
+    border-radius:9px;
+    text-decoration:none;
+    font-weight:700;
+    margin-top:30px;
+}
+@media(max-width:600px) {
+    .career-container { padding:12px; }
+    .detail-card { padding:22px; }
+    .detail-card h1 { font-size:23px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="career-container">
+
+    <a href="{% url 'career:opportunity_list' %}" class="back-link">
+        ← Back to Opportunities
+    </a>
+
+    <div class="detail-card">
+
+        <span class="category-tag">
+            {{ opportunity.get_category_display }}
+        </span>
+
+        <h1>{{ opportunity.title }}</h1>
+
+        <p class="organisation">{{ opportunity.organisation }}</p>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <small>Location</small>
+                <strong>{{ opportunity.location|default:"Not specified" }}</strong>
+            </div>
+
+            <div class="info-item">
+                <small>Work Mode</small>
+                <strong>{{ opportunity.work_mode|default:"Not specified" }}</strong>
+            </div>
+
+            <div class="info-item">
+                <small>Application Deadline</small>
+                <strong>
+                    {% if opportunity.application_deadline %}
+                        {{ opportunity.application_deadline|date:"d M Y" }}
+                    {% else %}
+                        Not specified
+                    {% endif %}
+                </strong>
+            </div>
+
+            <div class="info-item">
+                <small>Date Posted</small>
+                <strong>
+                    {% if opportunity.date_posted %}
+                        {{ opportunity.date_posted|date:"d M Y" }}
+                    {% else %}
+                        Not specified
+                    {% endif %}
+                </strong>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>About This Opportunity</h2>
+            <p>{{ opportunity.description }}</p>
+        </div>
+
+        {% if opportunity.eligibility %}
+        <div class="content-section">
+            <h2>Eligibility</h2>
+            <p>{{ opportunity.eligibility }}</p>
+        </div>
+        {% endif %}
+
+        {% if opportunity.requirements %}
+        <div class="content-section">
+            <h2>Requirements</h2>
+            <p>{{ opportunity.requirements }}</p>
+        </div>
+        {% endif %}
+
+        <a href="{{ opportunity.application_url }}"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="apply-btn">
+            Apply for This Opportunity →
+        </a>
+
+        {% if opportunity.source_url %}
+        <p style="margin-top:18px;font-size:13px;">
+            Original source:
+            <a href="{{ opportunity.source_url }}"
+               target="_blank"
+               rel="noopener noreferrer">
+                Visit source website
+            </a>
+        </p>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

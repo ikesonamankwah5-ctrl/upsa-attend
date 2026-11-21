@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+
+{% block title %}Career Quest | UPSA Attend{% endblock %}
+
+{% block page_heading %}Career Quest{% endblock %}
+{% block page_subheading %}Discover your strengths. Explore your future. Build your career.{% endblock %}
+
+{% block extra_css %}
+.quest-container {
+    max-width: 1150px;
+    margin: auto;
+}
+
+.quest-hero {
+    background: linear-gradient(120deg, #171936, #5148c7);
+    color: white;
+    border-radius: 18px;
+    padding: 38px;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 25px;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.quest-label {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    padding: 7px 12px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 17px;
+}
+
+.quest-hero h1 {
+    font-size: 32px;
+    line-height: 1.25;
+    max-width: 500px;
+    margin-bottom: 14px;
+}
+
+.quest-hero p {
+    font-size: 13px;
+    line-height: 1.8;
+    color: #e1e0ff;
+    max-width: 480px;
+}
+
+.quest-button {
+    display: inline-block;
+    background: white;
+    color: #5148c7;
+    padding: 13px 22px;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 800;
+    margin-top: 24px;
+}
+
+.quest-button:hover {
+    background: #f0efff;
+}
+
+.quest-illustration {
+    text-align: center;
+    font-size: 105px;
+}
+
+.quest-illustration div {
+    font-size: 12px;
+    color: #d9d6ff;
+    margin-top: 5px;
+    font-weight: 600;
+}
+
+.quest-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 24px 0;
+}
+
+.quest-stat {
+    background: white;
+    border: 1px solid #ececf3;
+    border-radius: 13px;
+    padding: 20px;
+}
+
+.quest-stat span {
+    font-size: 11px;
+    color: #85879d;
+}
+
+.quest-stat h2 {
+    font-size: 25px;
+    margin-top: 9px;
+    color: #252743;
+}
+
+.quest-section-title {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.quest-stages {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+}
+
+.quest-stage {
+    background: white;
+    border: 1px solid #ececf3;
+    border-radius: 12px;
+    padding: 18px 13px;
+}
+
+.quest-stage-icon {
+    font-size: 25px;
+    margin-bottom: 13px;
+}
+
+.quest-stage h4 {
+    font-size: 12px;
+    margin-bottom: 7px;
+}
+
+.quest-stage p {
+    font-size: 10px;
+    color: #85879d;
+    line-height: 1.6;
+}
+
+.quest-note {
+    margin-top: 22px;
+    background: #f0efff;
+    border: 1px solid #dedbff;
+    border-radius: 12px;
+    padding: 18px;
+    font-size: 12px;
+    color: #5148c7;
+    line-height: 1.7;
+}
+
+@media(max-width: 850px) {
+    .quest-hero {
+        grid-template-columns: 1fr;
+        padding: 27px;
+    }
+
+    .quest-illustration {
+        display: none;
+    }
+
+    .quest-stages {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media(max-width: 550px) {
+    .quest-hero h1 {
+        font-size: 25px;
+    }
+
+    .quest-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .quest-stages {
+        grid-template-columns: 1fr;
+    }
+}
+{% endblock %}
+
+{% block content %}
+
+<div class="quest-container">
+
+    <div class="quest-hero">
+
+        <div>
+
+            <span class="quest-label">✦ YOUR CAREER DISCOVERY EXPERIENCE</span>
+
+            <h1>Your Future Starts With Discovering Yourself.</h1>
+
+            <p>
+                Not sure which career path is right for you?
+                Career Quest helps you discover your interests, identify
+                your strengths and explore careers that match your potential.
+            </p>
+
+            <form method="POST" action="{% url 'career:start_career_quest' %}">
+                {% csrf_token %}
+
+                <button type="submit" class="quest-button">
+                    {% if latest_assessment and latest_assessment.status == 'IN_PROGRESS' %}
+                        Continue My Quest →
+                    {% else %}
+                        Start My Career Quest →
+                    {% endif %}
+                </button>
+
+            </form>
+
+        </div>
+
+        <div class="quest-illustration">
+            🚀
+            <div>Explore. Discover. Achieve.</div>
+        </div>
+
+    </div>
+
+
+    <div class="quest-stats">
+
+        <div class="quest-stat">
+            <span>Questions Available</span>
+            <h2>{{ total_questions }}</h2>
+        </div>
+
+        <div class="quest-stat">
+            <span>Completed Quests</span>
+            <h2>{{ completed_assessments }}</h2>
+        </div>
+
+        <div class="quest-stat">
+            <span>Assessment Stages</span>
+            <h2>5</h2>
+        </div>
+
+    </div>
+
+
+    <h3 class="quest-section-title">
+        Your Discovery Journey
+    </h3>
+
+
+    <div class="quest-stages">
+
+        <div class="quest-stage">
+            <div class="quest-stage-icon">🧭</div>
+            <h4>Discover Me</h4>
+            <p>Explore your interests and what excites you.</p>
+        </div>
+
+        <div class="quest-stage">
+            <div class="quest-stage-icon">⚡</div>
+            <h4>My Superpowers</h4>
+            <p>Identify your strengths and natural abilities.</p>
+        </div>
+
+        <div class="quest-stage">
+            <div class="quest-stage-icon">💼</div>
+            <h4>My Work Style</h4>
+            <p>Discover your preferred working environment.</p>
+        </div>
+
+        <div class="quest-stage">
+            <div class="quest-stage-icon">🎯</div>
+            <h4>My Ambitions</h4>
+            <p>Understand your goals and career aspirations.</p>
+        </div>
+
+        <div class="quest-stage">
+            <div class="quest-stage-icon">🏆</div>
+            <h4>Career Challenges</h4>
+            <p>Explore how you approach real-world situations.</p>
+        </div>
+
+    </div>
+
+
+    <div class="quest-note">
+        <strong>💡 Remember:</strong>
+        There are no wrong answers. Be honest about your interests,
+        preferences and ambitions. Your answers help us identify
+        career paths worth exploring.
+    </div>
+
+</div>
+
+{% endblock %}s

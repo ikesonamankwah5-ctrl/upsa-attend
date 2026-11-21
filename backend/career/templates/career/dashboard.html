@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+
+{% block title %}Career Opportunities | UPSA Attend{% endblock %}
+
+{% block extra_css %}
+<style>
+.career-container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 25px;
+}
+.career-hero {
+    background: linear-gradient(135deg, #552583, #8e44ad);
+    color: white;
+    padding: 35px;
+    border-radius: 18px;
+    margin-bottom: 25px;
+}
+.career-hero h1 {
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+.career-hero p {
+    margin-bottom: 20px;
+}
+.career-btn {
+    display: inline-block;
+    background: white;
+    color: #552583;
+    padding: 11px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+}
+.career-section {
+    margin-bottom: 30px;
+}
+.career-section h2 {
+    color: #333;
+    font-size: 21px;
+    margin-bottom: 16px;
+}
+.career-stats,
+.category-grid,
+.opportunity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+}
+.career-card {
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 13px;
+    padding: 20px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.04);
+}
+.stat-number {
+    font-size: 30px;
+    font-weight: 700;
+    color: #6c3483;
+}
+.category-card {
+    text-decoration: none;
+    color: #333;
+}
+.category-count {
+    color: #7d3c98;
+    font-weight: 700;
+    margin-top: 8px;
+}
+.opportunity-card h3 {
+    font-size: 17px;
+    margin-bottom: 8px;
+    color: #552583;
+}
+.opportunity-card p {
+    color: #666;
+    font-size: 14px;
+    margin: 7px 0;
+}
+.opportunity-tag {
+    display: inline-block;
+    background: #f1e6f8;
+    color: #6c3483;
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+.deadline {
+    color: #c0392b !important;
+    font-weight: 600;
+}
+.view-link {
+    display: inline-block;
+    margin-top: 12px;
+    color: #6c3483;
+    font-weight: 600;
+    text-decoration: none;
+}
+.empty-state {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    color: #777;
+    border: 1px dashed #ddd;
+}
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+@media(max-width: 600px) {
+    .career-container { padding: 12px; }
+    .career-hero { padding: 24px; }
+    .career-hero h1 { font-size: 24px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="career-container">
+
+    <section class="career-hero">
+        <h1>Build Your Future Beyond the Classroom</h1>
+        <p>
+            Discover internships, jobs, scholarships, fellowships,
+            competitions and other opportunities to grow your career.
+        </p>
+        <a href="{% url 'career:opportunity_list' %}" class="career-btn">
+            Explore Opportunities →
+        </a>
+    </section>
+
+    <section class="career-section">
+        <div class="career-stats">
+            <div class="career-card">
+                <div class="stat-number">{{ total_opportunities }}</div>
+                <div>Available Opportunities</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="career-section">
+        <h2>Explore by Category</h2>
+        <div class="category-grid">
+            {% for category in category_counts %}
+            <a href="{% url 'career:opportunity_list' %}?category={{ category.value }}"
+               class="career-card category-card">
+                <strong>{{ category.label }}</strong>
+                <div class="category-count">
+                    {{ category.count }} opportunities
+                </div>
+            </a>
+            {% empty %}
+            <div class="empty-state">No categories available.</div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="career-section">
+        <div class="section-heading">
+            <h2>Featured Opportunities</h2>
+            <a href="{% url 'career:opportunity_list' %}" class="view-link">
+                View All →
+            </a>
+        </div>
+
+        <div class="opportunity-grid">
+            {% for opportunity in featured_opportunities %}
+            <div class="career-card opportunity-card">
+                <span class="opportunity-tag">
+                    {{ opportunity.get_category_display }}
+                </span>
+                <h3>{{ opportunity.title }}</h3>
+                <p><strong>{{ opportunity.organisation }}</strong></p>
+
+                {% if opportunity.location %}
+                <p>📍 {{ opportunity.location }}</p>
+                {% endif %}
+
+                {% if opportunity.application_deadline %}
+                <p class="deadline">
+                    Deadline: {{ opportunity.application_deadline|date:"d M Y" }}
+                </p>
+                {% endif %}
+
+                <a href="{% url 'career:opportunity_detail' opportunity.id %}"
+                   class="view-link">
+                    View Details →
+                </a>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                No featured opportunities are available yet.
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="career-section">
+        <div class="section-heading">
+            <h2>Recently Added Opportunities</h2>
+            <a href="{% url 'career:opportunity_list' %}" class="view-link">
+                View All →
+            </a>
+        </div>
+
+        <div class="opportunity-grid">
+            {% for opportunity in latest_opportunities %}
+            <div class="career-card opportunity-card">
+                <span class="opportunity-tag">
+                    {{ opportunity.get_category_display }}
+                </span>
+                <h3>{{ opportunity.title }}</h3>
+                <p><strong>{{ opportunity.organisation }}</strong></p>
+
+                {% if opportunity.location %}
+                <p>📍 {{ opportunity.location }}</p>
+                {% endif %}
+
+                <a href="{% url 'career:opportunity_detail' opportunity.id %}"
+                   class="view-link">
+                    View Opportunity →
+                </a>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                No opportunities have been published yet.
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+</div>
+{% endblock %}

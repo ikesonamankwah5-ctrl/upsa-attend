@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+
+{% block title %}Premium Plans | UPSA Attend{% endblock %}
+
+{% block extra_css %}
+<style>
+    .plans-container {
+        max-width: 1100px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .plans-header {
+        text-align: center;
+        margin-bottom: 35px;
+    }
+
+    .plans-header h1 {
+        color: #172554;
+        font-size: 30px;
+        margin-bottom: 12px;
+    }
+
+    .plans-header p {
+        color: #64748b;
+        line-height: 1.7;
+    }
+
+    .plans-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+    }
+
+    .plan-card {
+        background: white;
+        border: 1px solid #e9d5ff;
+        border-radius: 16px;
+        padding: 28px 22px;
+        text-align: center;
+        box-shadow: 0 5px 18px rgba(91, 33, 182, 0.05);
+    }
+
+    .plan-card.featured {
+        border: 2px solid #7c3aed;
+        transform: translateY(-5px);
+    }
+
+    .plan-badge {
+        display: inline-block;
+        background: #ede9fe;
+        color: #5b21b6;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 800;
+        margin-bottom: 15px;
+    }
+
+    .plan-card h2 {
+        color: #4c1d95;
+        font-size: 21px;
+        margin-bottom: 12px;
+    }
+
+    .plan-duration {
+        color: #64748b;
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+
+    .plan-price {
+        font-size: 25px;
+        font-weight: 800;
+        color: #172554;
+        margin-bottom: 20px;
+    }
+
+    .plan-benefits {
+        list-style: none;
+        padding: 0;
+        margin: 20px 0;
+        text-align: left;
+    }
+
+    .plan-benefits li {
+        color: #475569;
+        font-size: 13px;
+        padding: 9px 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .plan-benefits li::before {
+        content: "✓";
+        color: #059669;
+        font-weight: bold;
+        margin-right: 9px;
+    }
+
+    .plan-button {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background: #6d28d9;
+        color: white;
+        border: none;
+        border-radius: 9px;
+        font-weight: 700;
+        text-decoration: none;
+        margin-top: 20px;
+        box-sizing: border-box;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .plan-button:hover {
+        background: #5b21b6;
+        color: white;
+    }
+
+    .premium-benefits {
+        background: #faf5ff;
+        border: 1px solid #e9d5ff;
+        border-radius: 15px;
+        padding: 25px;
+        margin-top: 35px;
+        text-align: center;
+    }
+
+    .premium-benefits h2 {
+        color: #4c1d95;
+        margin-bottom: 15px;
+    }
+
+    .premium-benefits p {
+        color: #64748b;
+        line-height: 1.8;
+    }
+
+    .back-button {
+        display: inline-block;
+        margin-top: 25px;
+        color: #5b21b6;
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+    @media(max-width: 600px) {
+        .plans-header h1 {
+            font-size: 24px;
+        }
+
+        .plan-card.featured {
+            transform: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block page_heading %}
+Premium Subscription
+{% endblock %}
+
+{% block page_subheading %}
+Choose a plan and unlock your academic learning experience.
+{% endblock %}
+
+{% block content %}
+
+<div class="plans-container">
+
+    <div class="plans-header">
+
+        <h1>Upgrade Your Learning Experience ✨</h1>
+
+        <p>
+            Choose a subscription plan that works for you.
+            One Premium subscription unlocks all four Premium
+            features in your Practice Centre.
+        </p>
+
+    </div>
+
+    {% if is_premium %}
+
+        <div class="premium-benefits">
+            <h2>✓ You Already Have Premium</h2>
+
+            <p>
+                Your Premium subscription is active.
+                You have access to all four Premium features.
+            </p>
+
+            <a href="{% url 'practice_dashboard' %}" class="back-button">
+                Return to Practice Centre →
+            </a>
+        </div>
+
+    {% else %}
+
+        <div class="plans-grid">
+
+            <!-- WEEKLY PLAN -->
+
+            <div class="plan-card">
+
+                <span class="plan-badge">FLEXIBLE</span>
+
+                <h2>Weekly Premium</h2>
+
+                <p class="plan-duration">
+                    7 days of Premium access
+                </p>
+
+                <div class="plan-price">
+                    GH₵5.00
+                </div>
+
+                <ul class="plan-benefits">
+                    <li>AI Question Generation</li>
+                    <li>AI Explanations</li>
+                    <li>AI Model Answers</li>
+                    <li>Advanced Analytics</li>
+                </ul>
+
+                <form method="POST" action="{% url 'subscriptions:initialize_payment' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="plan" value="WEEKLY">
+
+                    <button type="submit" class="plan-button">
+                        Subscribe Now
+                    </button>
+                </form>
+
+            </div>
+
+
+            <!-- MONTHLY PLAN -->
+
+            <div class="plan-card featured">
+
+                <span class="plan-badge">POPULAR PLAN</span>
+
+                <h2>Monthly Premium</h2>
+
+                <p class="plan-duration">
+                    30 days of Premium access
+                </p>
+
+                <div class="plan-price">
+                    GH₵20.00
+                </div>
+
+                <ul class="plan-benefits">
+                    <li>AI Question Generation</li>
+                    <li>AI Explanations</li>
+                    <li>AI Model Answers</li>
+                    <li>Advanced Analytics</li>
+                </ul>
+
+                <form method="POST" action="{% url 'subscriptions:initialize_payment' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="plan" value="MONTHLY">
+
+                    <button type="submit" class="plan-button">
+                        Subscribe Now
+                    </button>
+                </form>
+
+            </div>
+
+
+            <!-- SEMESTER PLAN -->
+
+            <div class="plan-card">
+
+                <span class="plan-badge">LONG-TERM ACCESS</span>
+
+                <h2>Semester Premium</h2>
+
+                <p class="plan-duration">
+                    120 days of Premium access
+                </p>
+
+                <div class="plan-price">
+                    GH₵50.00
+                </div>
+
+                <ul class="plan-benefits">
+                    <li>AI Question Generation</li>
+                    <li>AI Explanations</li>
+                    <li>AI Model Answers</li>
+                    <li>Advanced Analytics</li>
+                </ul>
+
+                <form method="POST" action="{% url 'subscriptions:initialize_payment' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="plan" value="SEMESTER">
+
+                    <button type="submit" class="plan-button">
+                        Subscribe Now
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+
+        <div class="premium-benefits">
+
+            <h2>One Subscription. Four Premium Features.</h2>
+
+            <p>
+                Subscribe once and unlock AI Question Generation,
+                AI Explanations, AI Model Answers and Advanced Analytics
+                with the same active subscription.
+            </p>
+
+            <p>
+                Your existing free Practice Centre features will
+                remain available whether or not you subscribe.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+    <div style="text-align:center;">
+        <a href="{% url 'practice_dashboard' %}" class="back-button">
+            ← Back to Practice Centre
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

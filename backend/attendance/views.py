@@ -1,3 +1,4 @@
+
 from datetime import timedelta
 from io import BytesIO
 
@@ -661,7 +662,6 @@ def rotating_qr_check_in(request, token):
         )
         return redirect('dashboard')
 
-    # Decode and verify the signed QR token
     try:
         payload = signing.loads(
             token,
@@ -692,7 +692,6 @@ def rotating_qr_check_in(request, token):
         )
         return redirect('dashboard')
 
-    # Verify the 60-second QR time slot
     if not verify_qr_token(token, session_id):
         messages.error(
             request,
@@ -771,7 +770,6 @@ def rotating_qr_check_in(request, token):
 
             already_present = False
 
-    # Display the attendance confirmation page
     return render(
         request,
         'attendance/attendance_success.html',
@@ -836,4 +834,30 @@ def my_attendance(request):
             'classes_missed': classes_missed,
             'attendance_percentage': attendance_percentage,
         }
+    )
+
+
+# --------------------------------------------------
+# STUDENT CAMERA QR SCANNER
+# --------------------------------------------------
+
+@login_required
+def scan_attendance(request):
+
+    student = getattr(
+        request.user,
+        'student_profile',
+        None
+    )
+
+    if student is None:
+        messages.error(
+            request,
+            'This page is only available to registered students.'
+        )
+        return redirect('dashboard')
+
+    return render(
+        request,
+        'attendance/scan_attendance.html'
     )

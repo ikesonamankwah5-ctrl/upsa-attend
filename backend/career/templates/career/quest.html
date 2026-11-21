@@ -1,0 +1,321 @@
+{% extends 'base.html' %}
+
+{% block title %}Career Quest | UPSA Attend{% endblock %}
+
+{% block content %}
+<style>
+    .quest-wrapper {
+        max-width: 950px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .quest-hero {
+        background: linear-gradient(135deg, #581c87, #9333ea);
+        color: white;
+        padding: 55px 35px;
+        border-radius: 24px;
+        text-align: center;
+    }
+
+    .quest-hero h1 {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        font-weight: 800;
+    }
+
+    .quest-hero p {
+        font-size: 1.05rem;
+        max-width: 650px;
+        margin: auto;
+        line-height: 1.7;
+        opacity: .95;
+    }
+
+    .quest-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin: 25px 0;
+    }
+
+    .quest-stat {
+        background: var(--card-bg, #fff);
+        border: 1px solid var(--border-color, #e5e7eb);
+        padding: 22px;
+        border-radius: 16px;
+        text-align: center;
+    }
+
+    .quest-stat strong {
+        display: block;
+        font-size: 1.7rem;
+        color: #9333ea;
+        margin-bottom: 5px;
+    }
+
+    .quest-stat span {
+        color: var(--text-muted, #6b7280);
+        font-size: .9rem;
+    }
+
+    .quest-info {
+        background: var(--card-bg, #fff);
+        border: 1px solid var(--border-color, #e5e7eb);
+        padding: 28px;
+        border-radius: 18px;
+        margin-bottom: 22px;
+    }
+
+    .quest-info h2 {
+        margin-top: 0;
+    }
+
+    .quest-stages {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        margin-top: 22px;
+    }
+
+    .quest-stage {
+        background: var(--bg-secondary, #f3e8ff);
+        padding: 15px 8px;
+        border-radius: 12px;
+        text-align: center;
+        font-size: .85rem;
+        font-weight: 600;
+    }
+
+    .quest-stage span {
+        display: block;
+        font-size: 1.5rem;
+        margin-bottom: 7px;
+    }
+
+    .quest-button {
+        display: inline-block;
+        background: #9333ea;
+        color: white !important;
+        padding: 15px 25px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 1rem;
+        border: none;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+    .quest-button:hover {
+        background: #7e22ce;
+        transform: translateY(-2px);
+    }
+
+    .results-button {
+        background: #16834b;
+    }
+
+    .results-button:hover {
+        background: #116638;
+    }
+
+    .delete-button {
+        background: #dc2626;
+    }
+
+    .delete-button:hover {
+        background: #b91c1c;
+    }
+
+    .quest-action {
+        text-align: center;
+        padding: 15px 0 10px;
+    }
+
+    .quest-action p {
+        color: var(--text-muted, #6b7280);
+        margin-bottom: 15px;
+        line-height: 1.6;
+    }
+
+    .quest-actions {
+        display: flex;
+        justify-content: center;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    @media(max-width: 650px) {
+        .quest-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .quest-stages {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .quest-hero h1 {
+            font-size: 1.9rem;
+        }
+
+        .quest-actions {
+            flex-direction: column;
+        }
+
+        .quest-button {
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="quest-wrapper">
+
+    <section class="quest-hero">
+        <div style="font-size: 3rem; margin-bottom: 12px;">🚀</div>
+
+        <h1>Discover Your Career Path</h1>
+
+        <p>
+            Your future is bigger than your degree.
+            Discover your strengths, explore exciting careers,
+            and uncover opportunities that match your personality,
+            interests and ambitions.
+        </p>
+    </section>
+
+    <div class="quest-stats">
+        <div class="quest-stat">
+            <strong>{{ total_questions }}</strong>
+            <span>Quest Questions</span>
+        </div>
+
+        <div class="quest-stat">
+            <strong>5</strong>
+            <span>Discovery Stages</span>
+        </div>
+
+        <div class="quest-stat">
+            <strong>{{ completed_assessments }}</strong>
+            <span>Quests Completed</span>
+        </div>
+    </div>
+
+    <section class="quest-info">
+        <h2>🎯 Your Career Discovery Journey</h2>
+
+        <p>
+            Answer questions about yourself, your abilities,
+            preferred working environment and future ambitions.
+            Your answers will help us identify careers worth exploring.
+        </p>
+
+        <div class="quest-stages">
+            <div class="quest-stage">
+                <span>🔍</span>
+                Discover Me
+            </div>
+
+            <div class="quest-stage">
+                <span>⚡</span>
+                My Superpowers
+            </div>
+
+            <div class="quest-stage">
+                <span>💼</span>
+                Work Style
+            </div>
+
+            <div class="quest-stage">
+                <span>🌟</span>
+                My Ambitions
+            </div>
+
+            <div class="quest-stage">
+                <span>🧠</span>
+                Career Challenges
+            </div>
+        </div>
+    </section>
+
+    {% if latest_completed_assessment %}
+        <section class="quest-info">
+            <h2>🏆 Your Previous Career Results</h2>
+
+            <p>
+                Your completed Career Quest results are saved.
+                You can revisit them or delete this assessment.
+            </p>
+
+            <div class="quest-action">
+                <div class="quest-actions">
+
+                    <a href="{% url 'career:career_results' assessment_id=latest_completed_assessment.id %}"
+                       class="quest-button results-button">
+                        📊 View My Previous Results
+                    </a>
+
+                    <form method="POST"
+                          action="{% url 'career:delete_career_result' assessment_id=latest_completed_assessment.id %}"
+                          onsubmit="return confirm('Are you sure you want to permanently delete these Career Quest results and all their saved answers? This action cannot be undone.');">
+
+                        {% csrf_token %}
+
+                        <button type="submit" class="quest-button delete-button">
+                            🗑 Delete Result
+                        </button>
+
+                    </form>
+
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+    {% if latest_assessment and latest_assessment.status == 'IN_PROGRESS' %}
+
+        <section class="quest-info">
+            <h2>👋 Welcome Back!</h2>
+
+            <p>
+                You have an unfinished Career Quest.
+                Continue where you stopped without losing your saved answers.
+            </p>
+
+            <div class="quest-action">
+                <form method="POST" action="{% url 'career:start_career_quest' %}">
+                    {% csrf_token %}
+
+                    <button type="submit" class="quest-button">
+                        Continue My Quest →
+                    </button>
+                </form>
+            </div>
+        </section>
+
+    {% else %}
+
+        <div class="quest-action">
+            <p>
+                Ready to discover more about yourself and your future career?
+            </p>
+
+            <form method="POST" action="{% url 'career:start_career_quest' %}">
+                {% csrf_token %}
+
+                <button type="submit" class="quest-button">
+                    {% if latest_completed_assessment %}
+                        Start a New Quest →
+                    {% else %}
+                        Start My Career Quest →
+                    {% endif %}
+                </button>
+            </form>
+        </div>
+
+    {% endif %}
+
+</div>
+{% endblock %}

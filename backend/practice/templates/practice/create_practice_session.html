@@ -1,0 +1,315 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Practice Session | UPSA Attend{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 850px;
+        margin: auto;
+    }
+
+    .form-card {
+        background: white;
+        padding: 30px;
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .form-intro {
+        margin-bottom: 25px;
+    }
+
+    .form-intro h2 {
+        color: #172554;
+        margin-bottom: 8px;
+    }
+
+    .form-intro p {
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 13px;
+        border: 1px solid #cbd5e1;
+        border-radius: 9px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #7c3aed;
+    }
+
+    .upload-box {
+        border: 2px dashed #c4b5fd;
+        background: #f5f3ff;
+        padding: 30px;
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .upload-box h3 {
+        color: #4c1d95;
+        margin-bottom: 8px;
+    }
+
+    .upload-box p {
+        color: #64748b;
+        font-size: 13px;
+        margin-bottom: 18px;
+    }
+
+    .upload-box input {
+        max-width: 100%;
+    }
+
+    .help-text {
+        font-size: 12px;
+        color: #64748b;
+        margin-top: 10px;
+    }
+
+    .error-box {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #b91c1c;
+        padding: 14px;
+        border-radius: 9px;
+        margin-bottom: 20px;
+        font-size: 13px;
+    }
+
+    .button-row {
+        display: flex;
+        gap: 12px;
+        margin-top: 25px;
+        flex-wrap: wrap;
+    }
+
+    .submit-button {
+        border: none;
+        background: #5b21b6;
+        color: white;
+        padding: 13px 22px;
+        border-radius: 9px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .submit-button:hover {
+        background: #4c1d95;
+    }
+
+    .cancel-button {
+        background: #f1f5f9;
+        color: #334155;
+        padding: 13px 22px;
+        border-radius: 9px;
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+    @media(max-width: 650px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-card {
+            padding: 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block page_heading %}
+Create Practice Session
+{% endblock %}
+
+{% block page_subheading %}
+Configure your questions and upload your lecture notes.
+{% endblock %}
+
+{% block content %}
+
+<div class="form-container">
+
+    <div class="form-card">
+
+        <div class="form-intro">
+            <h2>Set Up Your Practice</h2>
+            <p>
+                Choose your course, select your preferred practice
+                settings and upload the materials you want to study.
+            </p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="error-box">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            {% if form.errors %}
+                <div class="error-box">
+                    Please correct the errors below before continuing.
+                </div>
+            {% endif %}
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="{{ form.course_name.id_for_label }}">
+                        Course Name
+                    </label>
+
+                    {{ form.course_name }}
+
+                    {{ form.course_name.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.topic.id_for_label }}">
+                        Topic
+                    </label>
+
+                    {{ form.topic }}
+
+                    {{ form.topic.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.difficulty.id_for_label }}">
+                        Difficulty Level
+                    </label>
+
+                    {{ form.difficulty }}
+
+                    {{ form.difficulty.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.question_format.id_for_label }}">
+                        Question Format
+                    </label>
+
+                    {{ form.question_format }}
+
+                    {{ form.question_format.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.mode.id_for_label }}">
+                        Practice Mode
+                    </label>
+
+                    {{ form.mode }}
+
+                    {{ form.mode.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.number_of_questions.id_for_label }}">
+                        Number of Questions
+                    </label>
+
+                    {{ form.number_of_questions }}
+
+                    {{ form.number_of_questions.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.time_limit_minutes.id_for_label }}">
+                        Time Limit (Minutes)
+                    </label>
+
+                    {{ form.time_limit_minutes }}
+
+                    {{ form.time_limit_minutes.errors }}
+                </div>
+
+            </div>
+
+            <div class="form-group full-width">
+
+                <label>Upload Your Lecture Notes</label>
+
+                <div class="upload-box">
+
+                    <h3>📚 Upload Study Materials</h3>
+
+                    <p>
+                        Select up to 10 lecture notes for this practice session.
+                    </p>
+
+                    <input
+                        type="file"
+                        name="materials"
+                        multiple
+                        accept=".pdf,.doc,.docx,.ppt,.pptx"
+                        required
+                    >
+
+                    <div class="help-text">
+                        Accepted formats: PDF, DOC, DOCX, PPT and PPTX.
+                        Maximum 10 files, 10 MB per file.
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="button-row">
+
+                <button type="submit" class="submit-button">
+                    Save Practice Session →
+                </button>
+
+                <a
+                    href="{% url 'practice_dashboard' %}"
+                    class="cancel-button"
+                >
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

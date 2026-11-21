@@ -1,0 +1,607 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- PWA CONFIGURATION -->
+    <link rel="manifest" href="{% static 'pwa/manifest.json' %}">
+    <meta name="theme-color" content="#5148c7">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- iPhone / iPad support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="UPSA Attend">
+    <link rel="apple-touch-icon" href="{% static 'pwa/icons/icon-180.png' %}">
+
+    <title>{% block title %}UPSA Attend{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #635bdb;
+            --primary-dark: #5148c7;
+            --navy: #171936;
+            --background: #f5f6fb;
+            --white: #ffffff;
+            --text: #252743;
+            --muted: #85879d;
+            --border: #ececf3;
+            --sidebar-width: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .app-layout {
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: var(--navy);
+            color: white;
+            padding: 28px 18px;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .brand {
+            padding: 0 12px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .brand h2 {
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: -0.7px;
+        }
+
+        .brand span {
+            color: #aaa4ff;
+        }
+
+        .brand p {
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: #aaaac0;
+            margin-top: 7px;
+        }
+
+        .nav-section {
+            margin-top: 28px;
+        }
+
+        .nav-heading {
+            color: #8587a4;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            padding: 0 12px;
+            margin-bottom: 12px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin-bottom: 5px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #c4c5d6;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .logout-button {
+            width: 100%;
+            border: none;
+            background: transparent;
+            text-align: left;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .premium-badge {
+            margin-left: auto;
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: #ffd978;
+            background: rgba(255, 217, 120, 0.15);
+            padding: 4px 7px;
+            border-radius: 5px;
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 76px;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 35px;
+            position: sticky;
+            top: 0;
+            z-index: 500;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .topbar h3 {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .topbar p {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #eceaff;
+            color: var(--primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 800;
+        }
+
+        .user-name {
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .user-role {
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        .page-content {
+            padding: 32px 35px;
+            max-width: 1600px;
+            margin: auto;
+        }
+
+        .messages-container {
+            margin-bottom: 20px;
+        }
+
+        .message {
+            padding: 13px 16px;
+            border-radius: 9px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            background: #e8f7ed;
+            color: #207a42;
+        }
+
+        .message.error {
+            background: #fdeaea;
+            color: #b42318;
+        }
+
+        .message.warning {
+            background: #fff4df;
+            color: #946200;
+        }
+
+        .message.info {
+            background: #eaf1ff;
+            color: #3157a4;
+        }
+
+        .card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+        .primary-button {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 11px 18px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+
+        .primary-button:hover {
+            background: var(--primary-dark);
+        }
+
+        .menu-toggle {
+            display: none;
+            border: none;
+            background: #f0efff;
+            color: var(--primary);
+            padding: 9px 12px;
+            border-radius: 7px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .sidebar-overlay {
+            display: none;
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.45);
+                z-index: 900;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .topbar {
+                padding: 0 18px;
+            }
+
+            .page-content {
+                padding: 22px 18px;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .user-details {
+                display: none;
+            }
+
+            .topbar {
+                height: 68px;
+            }
+        }
+
+        {% block extra_css %}{% endblock %}
+    </style>
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+
+<div class="app-layout">
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+            <h2>UPSA <span>Attend</span></h2>
+            <p>YOUR ACADEMIC COMPANION</p>
+        </div>
+
+        <div class="nav-section">
+
+            <div class="nav-heading">MAIN MENU</div>
+
+            <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <span class="nav-icon">⌂</span>
+                Dashboard
+            </a>
+
+            {% if is_administrator or is_lecturer %}
+
+                <a href="{% url 'classroom_list' %}" class="nav-link {% if request.resolver_match.url_name == 'classroom_list' %}active{% endif %}">
+                    <span class="nav-icon">▦</span>
+                    Classrooms
+                </a>
+
+            {% endif %}
+
+            {% if is_administrator or is_lecturer or is_course_representative %}
+
+                <a href="{% url 'student_list' %}" class="nav-link">
+                    <span class="nav-icon">♙</span>
+                    Student Management
+                </a>
+
+                <a href="{% url 'attendance_list' %}" class="nav-link">
+                    <span class="nav-icon">✓</span>
+                    Attendance
+                </a>
+
+            {% endif %}
+
+            {% if is_student %}
+
+                <a href="{% url 'my_attendance' %}" class="nav-link">
+                    <span class="nav-icon">▤</span>
+                    My Attendance
+                </a>
+
+                <a href="{% url 'cgpa_dashboard' %}" class="nav-link">
+                    <span class="nav-icon">▥</span>
+                    GPA & CGPA
+                </a>
+
+            {% endif %}
+
+            {% if is_administrator or is_lecturer %}
+
+                <a href="{% url 'report_dashboard' %}" class="nav-link">
+                    <span class="nav-icon">▧</span>
+                    Reports
+                </a>
+
+            {% endif %}
+
+        </div>
+
+        {% if is_student %}
+
+        <div class="nav-section">
+
+            <div class="nav-heading">LEARNING CENTRE</div>
+
+            <a href="{% url 'past_questions_library' %}" class="nav-link">
+                <span class="nav-icon">▤</span>
+                Past Questions
+            </a>
+
+            <a href="{% url 'practice_dashboard' %}" class="nav-link">
+                <span class="nav-icon">✧</span>
+                Practice Centre
+            </a>
+
+            <a href="{% url 'study_simplifier:dashboard' %}" class="nav-link">
+                <span class="nav-icon">✎</span>
+                Study Simplifier
+                <span class="premium-badge">PREMIUM</span>
+            </a>
+
+            <a href="{% url 'study_group_list' %}" class="nav-link">
+                <span class="nav-icon">♧</span>
+                Study Connect
+            </a>
+
+        </div>
+
+        <div class="nav-section">
+
+            <div class="nav-heading">MORE</div>
+
+            <a href="{% url 'academic_calendar' %}" class="nav-link">
+                <span class="nav-icon">▦</span>
+                Academic Calendar
+            </a>
+
+        </div>
+
+        <div class="nav-section">
+
+            <div class="nav-heading">CAREER DEVELOPMENT</div>
+
+            <a href="{% url 'career:quest' %}" class="nav-link {% if request.resolver_match.url_name in 'quest start_career_quest career_question career_results' %}active{% endif %}">
+                <span class="nav-icon">🚀</span>
+                Career Quest
+            </a>
+
+            <a href="{% url 'career:opportunity_list' %}" class="nav-link {% if request.resolver_match.url_name in 'opportunity_list opportunity_detail' %}active{% endif %}">
+                <span class="nav-icon">✦</span>
+                Career Opportunities
+            </a>
+
+        </div>
+
+        {% endif %}
+
+        <div class="nav-section">
+
+            <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+
+                <button type="submit" class="nav-link logout-button">
+                    <span class="nav-icon">⇥</span>
+                    Sign Out
+                </button>
+
+            </form>
+
+        </div>
+
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <main class="main-content">
+
+        <header class="topbar">
+
+            <div class="topbar-left">
+
+                <button class="menu-toggle" id="menuToggle" type="button">
+                    ☰
+                </button>
+
+                <div>
+                    <h3>{% block page_heading %}UPSA Attend{% endblock %}</h3>
+                    <p>{% block page_subheading %}Your academic companion{% endblock %}</p>
+                </div>
+
+            </div>
+
+            <div class="user-info">
+
+                <div class="user-avatar">
+                    {{ request.user.username|first|upper }}
+                </div>
+
+                <div class="user-details">
+
+                    <div class="user-name">
+                        {{ request.user.get_full_name|default:request.user.username }}
+                    </div>
+
+                    <div class="user-role">
+
+                        {% if request.user.is_superuser %}
+                            Super Administrator
+                        {% elif is_administrator %}
+                            Administrator
+                        {% elif is_lecturer %}
+                            Lecturer
+                        {% elif is_course_representative %}
+                            Course Representative
+                        {% elif is_student %}
+                            Student · {% if is_premium %}Premium{% else %}Free{% endif %}
+                        {% elif request.user.is_staff %}
+                            Staff Account
+                        {% else %}
+                            Account
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <section class="page-content">
+
+            {% if messages %}
+
+            <div class="messages-container">
+
+                {% for message in messages %}
+
+                    <div class="message {{ message.tags }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+            {% endif %}
+
+            {% block content %}
+            {% endblock %}
+
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+
+    if (menuToggle && sidebar && overlay) {
+        menuToggle.addEventListener('click', function () {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        });
+
+        overlay.addEventListener('click', function () {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+        });
+    }
+
+    // Register UPSA Attend service worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+            navigator.serviceWorker.register('/sw.js')
+                .then(function (registration) {
+                    console.log('UPSA Attend service worker registered:', registration.scope);
+                })
+                .catch(function (error) {
+                    console.error('Service worker registration failed:', error);
+                });
+        });
+    }
+</script>
+
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

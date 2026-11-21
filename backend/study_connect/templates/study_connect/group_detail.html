@@ -1,0 +1,393 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ group.title }} | Study Connect{% endblock %}
+
+{% block extra_css %}
+
+\<style>     .detail-container {         max-width: 1100px;         margin: 30px auto;         padding: 20px;     }      .group-hero {         background: linear-gradient(135deg, #172554, #5b21b6);         color: white;         padding: 35px;         border-radius: 18px;         margin-bottom: 25px;     }      .group-hero h2 { margin-bottom: 12px; }     .group-hero p { opacity: .9; }      .group-meta {         display: flex;         flex-wrap: wrap;         gap: 18px;         font-size: 14px;         margin-top: 20px;     }      .detail-grid {         display: grid;         grid-template-columns: 2fr 1fr;         gap: 22px;     }      .detail-card {         background: white;         border: 1px solid #e5e7eb;         border-radius: 14px;         padding: 24px;         margin-bottom: 20px;     }      .detail-card h3 {         color: #172554;         margin-bottom: 18px;     }      .member-item, .session-item {         padding: 14px 0;         border-bottom: 1px solid #e5e7eb;     }      .member-item\:last-child, .session-item\:last-child {         border-bottom: none;     }      .member-role {         color: #5b21b6;         font-size: 12px;         font-weight: 600;     }      .session-date {         color: #64748b;         font-size: 13px;         margin-top: 6px;     }      .action-btn {         display: inline-block;         border: none;         background: #5b21b6;         color: white;         padding: 11px 18px;         border-radius: 8px;         text-decoration: none;         font-weight: 600;         cursor: pointer;     }      .action-btn\:hover {         background: #4c1d95;         color: white;     }      .secondary-btn {         background: #e2e8f0;         color: #334155;     }      .secondary-btn\:hover {         background: #cbd5e1;         color: #172554;     }      .danger-btn { background: #dc2626; }     .danger-btn\:hover { background: #b91c1c; }      .action-form {         display: inline-block;         margin: 5px 5px 5px 0;     }      .empty-message {         color: #64748b;         background: #f8fafc;         padding: 18px;         border-radius: 9px;     }      .notice {         background: #ede9fe;         color: #5b21b6;         padding: 15px;         border-radius: 9px;         margin-bottom: 20px;     }      /\* GROUP CHAT \*/      .chat-box {         max-height: 420px;         overflow-y: auto;         background: #f8fafc;         padding: 15px;         border-radius: 10px;         margin-bottom: 18px;     }      .chat-message {         background: white;         padding: 13px;         border-radius: 10px;         margin-bottom: 12px;         border: 1px solid #e5e7eb;     }      .chat-sender {         font-weight: 700;         color: #5b21b6;         margin-bottom: 5px;     }      .chat-text {         color: #334155;         white-space: pre-wrap;         overflow-wrap: anywhere;     }      .chat-time {         color: #94a3b8;         font-size: 11px;         margin-top: 7px;     }      .chat-form textarea {         width: 100%;         padding: 12px;         border: 1px solid #cbd5e1;         border-radius: 8px;         resize: vertical;         margin-bottom: 12px;         box-sizing: border-box;     }      .chat-status {         color: #64748b;         font-size: 12px;         margin-bottom: 12px;     }      @media(max-width: 750px) {         .detail-grid { grid-template-columns: 1fr; }         .detail-container { padding: 12px; }     } \</style>
+
+{% endblock %}
+
+{% block content %}
+
+\<div class="detail-container">
+
+```
+<div class="group-hero">
+    <h2>{{ group.title }}</h2>
+    <p>{{ group.description }}</p>
+
+    <div class="group-meta">
+        <span>📖 {{ group.course }}</span>
+        <span>🎓 {{ group.programme }}</span>
+        <span>📚 {{ group.academic_level }}</span>
+        <span>👥 {{ group.member_count }} members</span>
+        <span>🔒 {{ group.get_visibility_display }}</span>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="notice">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+{% if is_member %}
+
+    <div class="detail-grid">
+
+        <div>
+
+            <!-- GROUP CHAT -->
+
+            <div class="detail-card">
+                <h3>💬 Group Discussion</h3>
+
+                <p style="color:#64748b; margin-bottom:15px;">
+                    Communicate and share ideas with your study group members.
+                </p>
+
+                <div class="chat-box"
+                     id="group-chat-messages"
+                     data-url="{% url 'get_group_messages' group.id %}">
+
+                    {% for message in group_messages %}
+                        <div class="chat-message">
+
+                            <div class="chat-sender">
+                                {{ message.sender }}
+                            </div>
+
+                            <div class="chat-text">
+                                {{ message.message }}
+                            </div>
+
+                            <div class="chat-time">
+                                {{ message.created_at|date:"D, d M Y - H:i" }}
+                            </div>
+
+                        </div>
+                    {% empty %}
+                        <div class="empty-message">
+                            No messages yet. Start the discussion!
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+                <div class="chat-status" id="chat-status">
+                    🟢 Chat updates automatically every 5 seconds.
+                </div>
+
+                <form method="POST"
+                      action="{% url 'send_group_message' group.id %}"
+                      class="chat-form">
+
+                    {% csrf_token %}
+
+                    {{ message_form.message }}
+
+                    <button type="submit" class="action-btn">
+                        Send Message ➤
+                    </button>
+
+                </form>
+            </div>
+
+            <!-- STUDY SESSIONS -->
+
+            <div class="detail-card">
+                <h3>📅 Study Sessions</h3>
+
+                {% if membership.role == 'ADMIN' %}
+                    <a href="{% url 'create_study_session' group.id %}"
+                       class="action-btn">
+                        + Schedule Session
+                    </a>
+                {% endif %}
+
+                {% for session in sessions %}
+                    <div class="session-item">
+                        <strong>{{ session.title }}</strong>
+                        <p>{{ session.description }}</p>
+
+                        <div class="session-date">
+                            🕒 {{ session.scheduled_at|date:"D, d M Y - H:i" }}
+                        </div>
+
+                        <div class="session-date">
+                            {% if session.session_type == 'VIRTUAL' %}
+                                💻 Virtual Session
+                            {% else %}
+                                📍 {{ session.meeting_location }}
+                            {% endif %}
+                        </div>
+
+                        {% if session.session_type == 'VIRTUAL' and session.meeting_link %}
+                            <a href="{{ session.meeting_link }}"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               class="action-btn">
+                                Join Meeting
+                            </a>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <div class="empty-message">
+                        No study sessions have been scheduled yet.
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+
+        <div>
+
+            <!-- MEMBERS -->
+
+            <div class="detail-card">
+                <h3>👥 Group Members</h3>
+
+                {% for member in members %}
+                    <div class="member-item">
+                        <strong>{{ member.student }}</strong>
+                        <div class="member-role">
+                            {{ member.get_role_display }}
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No members yet.</p>
+                {% endfor %}
+            </div>
+
+            <!-- MEMBERSHIP REQUESTS -->
+
+            {% if membership.role == 'ADMIN' and pending_memberships %}
+                <div class="detail-card">
+                    <h3>⏳ Membership Requests</h3>
+
+                    {% for pending in pending_memberships %}
+                        <div class="member-item">
+
+                            <strong>{{ pending.student }}</strong>
+
+                            <p class="session-date">
+                                Requested to join this study group.
+                            </p>
+
+                            <form method="POST"
+                                  action="{% url 'approve_membership' pending.id %}"
+                                  class="action-form">
+                                {% csrf_token %}
+                                <button type="submit" class="action-btn">
+                                    Approve
+                                </button>
+                            </form>
+
+                            <form method="POST"
+                                  action="{% url 'reject_membership' pending.id %}"
+                                  class="action-form"
+                                  onsubmit="return confirm('Reject this membership request?');">
+                                {% csrf_token %}
+                                <button type="submit"
+                                        class="action-btn danger-btn">
+                                    Reject
+                                </button>
+                            </form>
+
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- GROUP ACTIONS -->
+
+            <div class="detail-card">
+                <h3>⚙️ Group Actions</h3>
+
+                {% if membership.role == 'ADMIN' %}
+
+                    <p>You are the administrator of this group.</p>
+
+                    <form method="POST"
+                          action="{% url 'delete_study_group' group.id %}"
+                          onsubmit="return confirm('WARNING: Deleting this group will permanently remove all its members and scheduled sessions. Are you sure you want to continue?');">
+
+                        {% csrf_token %}
+
+                        <button type="submit"
+                                class="action-btn danger-btn">
+                            🗑️ Delete Study Group
+                        </button>
+
+                    </form>
+
+                {% else %}
+
+                    <form method="POST"
+                          action="{% url 'leave_study_group' group.id %}"
+                          onsubmit="return confirm('Are you sure you want to leave this study group?');">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="action-btn danger-btn">
+                            Leave Group
+                        </button>
+                    </form>
+
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+
+{% elif is_pending %}
+
+    <div class="detail-card">
+        <h3>⏳ Request Pending</h3>
+        <p>
+            Your request to join this private group is awaiting
+            approval from the group administrator.
+        </p>
+    </div>
+
+{% else %}
+
+    <div class="detail-card">
+
+        {% if group.visibility == 'PUBLIC' %}
+            <h3>Join This Study Group</h3>
+            <p>
+                Become a member to participate in study sessions
+                and collaborate with other students.
+            </p>
+
+            <form method="POST"
+                  action="{% url 'join_study_group' group.id %}">
+                {% csrf_token %}
+                <button type="submit" class="action-btn">
+                    Join Study Group
+                </button>
+            </form>
+
+        {% else %}
+            <h3>🔒 Private Study Group</h3>
+            <p>
+                This group is private. You need approval from
+                the administrator before accessing its activities.
+            </p>
+
+            <form method="POST"
+                  action="{% url 'join_study_group' group.id %}">
+                {% csrf_token %}
+                <button type="submit" class="action-btn">
+                    Request to Join
+                </button>
+            </form>
+        {% endif %}
+
+    </div>
+
+{% endif %}
+
+<a href="{% url 'study_group_list' %}"
+   class="action-btn secondary-btn">
+    ← Back to Study Groups
+</a>
+```
+
+\</div>
+
+{% endblock %}
+
+{% block extra_js %}
+
+\<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+&#x20;   const chatBox = document.getElementById('group-chat-messages');
+
+&#x20;   if (!chatBox) {
+&#x20;       return;
+&#x20;   }
+
+&#x20;   const messagesUrl = chatBox.dataset.url;
+&#x20;   const chatStatus = document.getElementById('chat-status');
+
+&#x20;   async function refreshMessages() {
+
+&#x20;       try {
+&#x20;           const response = await fetch(messagesUrl, {
+&#x20;               headers: {
+&#x20;                   'X-Requested-With': 'XMLHttpRequest'
+&#x20;               }
+&#x20;           });
+
+&#x20;           if (!response.ok) {
+&#x20;               throw new Error('Unable to retrieve messages.');
+&#x20;           }
+
+&#x20;           const data = await response.json();
+
+&#x20;           const wasNearBottom =
+&#x20;               chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight < 100;
+
+&#x20;           chatBox.innerHTML = '';
+
+&#x20;           if (data.messages.length === 0) {
+&#x20;               const emptyMessage = document.createElement('div');
+&#x20;               emptyMessage.className = 'empty-message';
+&#x20;               emptyMessage.textContent = 'No messages yet. Start the discussion!';
+&#x20;               chatBox.appendChild(emptyMessage);
+&#x20;           } else {
+
+&#x20;               data.messages.forEach(function (message) {
+
+&#x20;                   const messageCard = document.createElement('div');
+&#x20;                   messageCard.className = 'chat-message';
+
+&#x20;                   const sender = document.createElement('div');
+&#x20;                   sender.className = 'chat-sender';
+&#x20;                   sender.textContent = message.sender;
+
+&#x20;                   const messageText = document.createElement('div');
+&#x20;                   messageText.className = 'chat-text';
+&#x20;                   messageText.textContent = message.message;
+
+&#x20;                   const time = document.createElement('div');
+&#x20;                   time.className = 'chat-time';
+&#x20;                   time.textContent = message.created_at;
+
+&#x20;                   messageCard.appendChild(sender);
+&#x20;                   messageCard.appendChild(messageText);
+&#x20;                   messageCard.appendChild(time);
+
+&#x20;                   chatBox.appendChild(messageCard);
+&#x20;               });
+&#x20;           }
+
+&#x20;           if (wasNearBottom) {
+&#x20;               chatBox.scrollTop = chatBox.scrollHeight;
+&#x20;           }
+
+&#x20;           if (chatStatus) {
+&#x20;               chatStatus.textContent = '🟢 Chat updates automatically every 5 seconds.';
+&#x20;           }
+
+&#x20;       } catch (error) {
+&#x20;           console.error('Chat refresh error:', error);
+
+&#x20;           if (chatStatus) {
+&#x20;               chatStatus.textContent = '🟠 Unable to refresh messages. Retrying...';
+&#x20;           }
+&#x20;       }
+&#x20;   }
+
+&#x20;   refreshMessages();
+
+&#x20;   setInterval(refreshMessages, 5000);
+
+});
+\</script>
+
+{% endblock %}

@@ -1,0 +1,517 @@
+{% extends 'base.html' %}
+
+{% block title %}Career Quest | Question{% endblock %}
+
+{% block page_heading %}Career Quest{% endblock %}
+{% block page_subheading %}Discover your strengths. Explore your future.{% endblock %}
+
+{% block extra_css %}
+<style>
+    .quest-page {
+        max-width: 900px;
+        margin: 0 auto;
+        padding-bottom: 40px;
+    }
+
+    .quest-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+    }
+
+    .quest-label {
+        color: #635bdb;
+        font-size: 13px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .xp-badge {
+        background: #fff4d8;
+        color: #9a6500;
+        padding: 10px 16px;
+        border-radius: 30px;
+        font-weight: 800;
+        font-size: 14px;
+    }
+
+    .progress-card {
+        background: white;
+        padding: 22px;
+        border-radius: 18px;
+        border: 1px solid #e9eaf2;
+        margin-bottom: 25px;
+    }
+
+    .progress-info {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        color: #777b91;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    .progress-track {
+        width: 100%;
+        height: 10px;
+        background: #eeeef7;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        width: {{ progress_percentage|default:0 }}%;
+        background: linear-gradient(90deg, #635bdb, #9a75f5);
+        border-radius: 20px;
+        transition: width 0.4s ease;
+    }
+
+    .question-card {
+        background: white;
+        border: 1px solid #e9eaf2;
+        border-radius: 22px;
+        padding: 35px;
+        box-shadow: 0 8px 30px rgba(30, 30, 70, 0.04);
+    }
+
+    .stage-tag {
+        display: inline-block;
+        background: #f0efff;
+        color: #635bdb;
+        padding: 8px 13px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 800;
+        margin-bottom: 18px;
+    }
+
+    .question-number {
+        color: #9295a7;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+    .question-card h1 {
+        color: #171936;
+        font-size: 27px;
+        line-height: 1.4;
+        margin: 0 0 16px;
+    }
+
+    .scenario-box {
+        background: #f7f7fc;
+        border-left: 4px solid #635bdb;
+        padding: 18px 20px;
+        border-radius: 10px;
+        color: #555970;
+        line-height: 1.7;
+        margin: 20px 0;
+    }
+
+    .question-instruction {
+        color: #777b91;
+        font-size: 14px;
+        margin: 20px 0;
+    }
+
+    .options-list {
+        display: grid;
+        gap: 13px;
+        margin-top: 20px;
+    }
+
+    .option-label {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 18px;
+        border: 2px solid #e9eaf2;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: 0.2s ease;
+        background: white;
+    }
+
+    .option-label:hover {
+        border-color: #aaa4ef;
+        background: #fafaff;
+    }
+
+    .option-label.selected {
+        border-color: #635bdb;
+        background: #f5f4ff;
+    }
+
+    .option-label input {
+        margin-top: 4px;
+        accent-color: #635bdb;
+        width: 17px;
+        height: 17px;
+        flex-shrink: 0;
+    }
+
+    .option-text {
+        color: #33364f;
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    .error-message {
+        background: #fff0f0;
+        color: #b42318;
+        border: 1px solid #ffd1d1;
+        padding: 13px 16px;
+        border-radius: 10px;
+        margin-bottom: 18px;
+        font-size: 14px;
+    }
+
+    .question-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+
+    .xp-note {
+        color: #9295a7;
+        font-size: 13px;
+    }
+
+    .navigation-buttons {
+        display: flex;
+        gap: 12px;
+    }
+
+    .nav-btn {
+        padding: 14px 23px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: 0.2s ease;
+        border: none;
+    }
+
+    .back-btn {
+        background: #f0efff;
+        color: #5148c7;
+    }
+
+    .back-btn:hover {
+        background: #e4e1ff;
+    }
+
+    .next-btn {
+        background: #635bdb;
+        color: white;
+    }
+
+    .next-btn:hover {
+        background: #5148c7;
+        transform: translateY(-2px);
+    }
+
+    .nav-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    @media (max-width: 600px) {
+        .question-card {
+            padding: 23px 18px;
+        }
+
+        .question-card h1 {
+            font-size: 22px;
+        }
+
+        .question-footer {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .navigation-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .nav-btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="quest-page">
+
+    <div class="quest-top">
+
+        <div>
+            <div class="quest-label">🚀 Career Quest</div>
+
+            <p style="color:#777b91; margin:6px 0 0;">
+                Discover your strengths. Explore your future.
+            </p>
+        </div>
+
+        <div class="xp-badge">
+            ⭐ {{ assessment.total_xp }} XP
+        </div>
+
+    </div>
+
+
+    <div class="progress-card">
+
+        <div class="progress-info">
+            <span>Your discovery journey</span>
+
+            <span>
+                Question {{ current_number }} of {{ total_questions }}
+            </span>
+        </div>
+
+        <div class="progress-track">
+
+            <div
+                class="progress-fill"
+                style="width: {% widthratio current_number total_questions 100 %}%;">
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="question-card">
+
+        <div class="question-number">
+            QUESTION {{ current_number }} / {{ total_questions }}
+        </div>
+
+        <span class="stage-tag">
+            {{ question.get_stage_display }}
+        </span>
+
+        <h1>{{ question.question_text }}</h1>
+
+
+        {% if question.scenario %}
+
+            <div class="scenario-box">
+                {{ question.scenario|linebreaksbr }}
+            </div>
+
+        {% endif %}
+
+
+        {% if question.question_type == 'MULTIPLE' %}
+
+            <p class="question-instruction">
+                Select all the options that describe you.
+                You can choose more than one.
+            </p>
+
+        {% else %}
+
+            <p class="question-instruction">
+                Choose the option that best describes you.
+            </p>
+
+        {% endif %}
+
+
+        {% if error_message %}
+
+            <div class="error-message">
+                {{ error_message }}
+            </div>
+
+        {% endif %}
+
+
+        <form method="POST" id="questForm">
+
+            {% csrf_token %}
+
+            <div class="options-list">
+
+                {% for option in options %}
+
+                    <label class="option-label">
+
+                        {% if question.question_type == 'MULTIPLE' %}
+
+                            <input
+                                type="checkbox"
+                                name="options"
+                                value="{{ option.id }}"
+                                {% if option.id in selected_option_ids %}checked{% endif %}
+                            >
+
+                        {% else %}
+
+                            <input
+                                type="radio"
+                                name="options"
+                                value="{{ option.id }}"
+                                {% if option.id in selected_option_ids %}checked{% endif %}
+                            >
+
+                        {% endif %}
+
+                        <span class="option-text">
+                            {{ option.option_text }}
+                        </span>
+
+                    </label>
+
+                {% empty %}
+
+                    <p style="color:#b42318;">
+                        No answer options have been added to this question yet.
+                    </p>
+
+                {% endfor %}
+
+            </div>
+
+
+            <div class="question-footer">
+
+                <span class="xp-note">
+                    ✨ Earn {{ question.xp_reward }} XP for answering
+                </span>
+
+
+                <div class="navigation-buttons">
+
+                    {% if not is_first_question %}
+
+                        <button
+                            type="submit"
+                            name="action"
+                            value="back"
+                            class="nav-btn back-btn"
+                            formnovalidate
+                        >
+                            ← Back
+                        </button>
+
+                    {% endif %}
+
+
+                    <button
+                        type="submit"
+                        name="action"
+                        value="next"
+                        class="nav-btn next-btn"
+                        id="nextBtn"
+                        {% if not options %}disabled{% endif %}
+                    >
+
+                        {% if is_last_question %}
+                            Complete Quest ✓
+                        {% else %}
+                            Next →
+                        {% endif %}
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+    const optionLabels = document.querySelectorAll('.option-label');
+    const form = document.getElementById('questForm');
+    const nextBtn = document.getElementById('nextBtn');
+
+    function updateSelectedOptions() {
+
+        optionLabels.forEach(label => {
+
+            const input = label.querySelector('input');
+
+            label.classList.toggle(
+                'selected',
+                input.checked
+            );
+
+        });
+
+    }
+
+    optionLabels.forEach(label => {
+
+        const input = label.querySelector('input');
+
+        input.addEventListener(
+            'change',
+            updateSelectedOptions
+        );
+
+    });
+
+    updateSelectedOptions();
+
+
+    form.addEventListener('submit', function(event) {
+
+        const action = event.submitter
+            ? event.submitter.value
+            : 'next';
+
+        if (action === 'back') {
+            return;
+        }
+
+        const selected = document.querySelectorAll(
+            'input[name="options"]:checked'
+        );
+
+        if (selected.length === 0) {
+
+            event.preventDefault();
+
+            alert('Please select an answer before continuing.');
+
+            return;
+
+        }
+
+        nextBtn.disabled = true;
+
+        nextBtn.textContent = 'Saving...';
+
+    });
+
+</script>
+
+{% endblock %}

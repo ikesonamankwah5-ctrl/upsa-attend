@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+{% block title %}Scan Attendance | UPSA Attend{% endblock %}
+
+{% block page_heading %}Scan Attendance QR{% endblock %}
+{% block page_subheading %}
+Scan your lecturer's QR code to record your attendance.
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .scanner-wrapper {
+        max-width: 650px;
+        margin: 25px auto;
+    }
+
+    .scanner-card {
+        background: white;
+        padding: 30px;
+        border-radius: 18px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+        text-align: center;
+    }
+
+    .scanner-icon {
+        font-size: 45px;
+        margin-bottom: 12px;
+    }
+
+    .scanner-card h2 {
+        color: #172554;
+        margin-bottom: 10px;
+    }
+
+    .scanner-description {
+        color: #64748b;
+        line-height: 1.6;
+        margin-bottom: 25px;
+    }
+
+    #reader {
+        width: 100%;
+        max-width: 450px;
+        margin: 0 auto 20px;
+        overflow: hidden;
+        border-radius: 12px;
+    }
+
+    .scanner-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+    .scanner-button {
+        border: none;
+        padding: 13px 25px;
+        border-radius: 9px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .start-button {
+        background: #6d28d9;
+        color: white;
+    }
+
+    .stop-button {
+        background: #e2e8f0;
+        color: #334155;
+    }
+
+    .scanner-status {
+        margin-top: 20px;
+        padding: 14px;
+        border-radius: 10px;
+        background: #f1f5f9;
+        color: #475569;
+        font-size: 14px;
+    }
+
+    .scanner-warning {
+        background: #fff7ed;
+        color: #9a3412;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 22px;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .back-link {
+        display: inline-block;
+        margin-top: 20px;
+        color: #6d28d9;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    @media (max-width: 600px) {
+        .scanner-card {
+            padding: 20px 15px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="scanner-wrapper">
+    <div class="scanner-card">
+
+        <div class="scanner-icon">📷</div>
+
+        <h2>Scan Your Attendance</h2>
+
+        <p class="scanner-description">
+            Position your camera towards the QR code displayed
+            by your lecturer. Your attendance will be recorded
+            automatically after successful verification.
+        </p>
+
+        <div id="reader"></div>
+
+        <div class="scanner-buttons">
+            <button
+                type="button"
+                id="startScanner"
+                class="scanner-button start-button"
+            >
+                Start Camera
+            </button>
+
+            <button
+                type="button"
+                id="stopScanner"
+                class="scanner-button stop-button"
+                disabled
+            >
+                Stop Camera
+            </button>
+        </div>
+
+        <div id="scannerStatus" class="scanner-status">
+            Camera is not active. Click Start Camera to begin.
+        </div>
+
+        <div class="scanner-warning">
+            <strong>Important:</strong>
+            Only scan the official attendance QR code displayed
+            by your lecturer. Rotating QR codes expire after
+            approximately 30 seconds.
+        </div>
+
+        <a href="{% url 'dashboard' %}" class="back-link">
+            ← Back to Dashboard
+        </a>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<script>
+    const scanner = new Html5Qrcode("reader");
+
+    const startButton = document.getElementById("startScanner");
+    const stopButton = document.getElementById("stopScanner");
+    const statusBox = document.getElementById("scannerStatus");
+
+    let scanning = false;
+
+    function setStatus(message) {
+        statusBox.textContent = message;
+    }
+
+    function handleScan(decodedText) {
+        let scannedUrl;
+
+        try {
+            scannedUrl = new URL(decodedText);
+        } catch (error) {
+            setStatus("Invalid QR code. Please scan the official attendance QR.");
+            return;
+        }
+
+        const expectedPath = /^\/attendance\/rotating-scan\/[^/]+\/?$/;
+
+        if (
+            scannedUrl.origin !== window.location.origin ||
+            !expectedPath.test(scannedUrl.pathname)
+        ) {
+            setStatus("This is not a valid UPSA Attend attendance QR code.");
+            return;
+        }
+
+        setStatus("QR code detected! Verifying your attendance...");
+
+        scanner.stop().then(() => {
+            window.location.assign(scannedUrl.href);
+        }).catch(() => {
+            window.location.assign(scannedUrl.href);
+        });
+    }
+
+    startButton.addEventListener("click", async function () {
+        if (scanning) return;
+
+        try {
+            await scanner.start(
+                { facingMode: "environment" },
+                {
+                    fps: 10,
+                    qrbox: {
+                        width: 250,
+                        height: 250
+                    }
+                },
+                handleScan,
+                function () {}
+            );
+
+            scanning = true;
+            startButton.disabled = true;
+            stopButton.disabled = false;
+
+            setStatus("Camera active. Position the QR code inside the scanning box.");
+
+        } catch (error) {
+            setStatus(
+                "Unable to access your camera. Please allow camera permission and try again."
+            );
+        }
+    });
+
+    stopButton.addEventListener("click", async function () {
+        if (!scanning) return;
+
+        try {
+            await scanner.stop();
+
+            scanning = false;
+            startButton.disabled = false;
+            stopButton.disabled = true;
+
+            setStatus("Camera stopped.");
+
+        } catch (error) {
+            setStatus("Unable to stop the camera. Please refresh the page.");
+        }
+    });
+</script>
+
+{% endblock %}

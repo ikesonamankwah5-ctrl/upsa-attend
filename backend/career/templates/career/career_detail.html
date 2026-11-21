@@ -1,0 +1,567 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ career.title }} | Career Exploration{% endblock %}
+
+{% block extra_css %}
+<style>
+    .career-detail {
+        max-width: 1050px;
+        margin: 0 auto;
+        padding-bottom: 50px;
+    }
+
+    .career-hero {
+        background: linear-gradient(135deg, #171936, #5148c7);
+        color: white;
+        padding: 45px 35px;
+        border-radius: 22px;
+        margin-bottom: 30px;
+    }
+
+    .career-hero h1 {
+        font-size: 32px;
+        margin: 12px 0;
+    }
+
+    .career-hero p {
+        color: #e0defe;
+        line-height: 1.8;
+        max-width: 750px;
+    }
+
+    .career-label {
+        color: #c9c5ff;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+    }
+
+    .career-section {
+        background: white;
+        border: 1px solid #e9eaf2;
+        border-radius: 18px;
+        padding: 25px;
+        margin-bottom: 20px;
+    }
+
+    .career-section h2 {
+        color: #171936;
+        font-size: 21px;
+        margin-bottom: 15px;
+    }
+
+    .career-section p {
+        color: #62667d;
+        line-height: 1.8;
+        white-space: pre-line;
+    }
+
+    .skills-grid,
+    .programmes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 15px;
+    }
+
+    .skill-card,
+    .programme-card {
+        background: #f8f8fd;
+        border: 1px solid #ecebfa;
+        padding: 17px;
+        border-radius: 13px;
+    }
+
+    .skill-card h3,
+    .programme-card h3 {
+        color: #292747;
+        font-size: 15px;
+        margin-bottom: 8px;
+    }
+
+    .skill-card p,
+    .programme-card p {
+        font-size: 13px;
+        margin: 0;
+    }
+
+    .skill-type {
+        display: inline-block;
+        color: #635bdb;
+        background: #eeedff;
+        padding: 5px 9px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+    .programme-type {
+        color: #635bdb;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    /* SALARY INSIGHTS */
+
+    .salary-intro {
+        color: #777b91;
+        font-size: 14px;
+        line-height: 1.7;
+        margin-bottom: 20px;
+    }
+
+    .salary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .salary-card {
+        background: #f8f8fd;
+        border: 1px solid #ecebfa;
+        border-radius: 14px;
+        padding: 20px;
+    }
+
+    .salary-level {
+        color: #635bdb;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+    }
+
+    .salary-amount {
+        color: #171936;
+        font-size: 20px;
+        font-weight: 800;
+        margin-bottom: 8px;
+        line-height: 1.5;
+    }
+
+    .salary-period {
+        color: #777b91;
+        font-size: 12px;
+    }
+
+    .salary-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 18px;
+    }
+
+    .salary-tag {
+        display: inline-block;
+        background: #eeedff;
+        color: #635bdb;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .salary-source {
+        border-top: 1px solid #ecebfa;
+        margin-top: 20px;
+        padding-top: 15px;
+        font-size: 12px;
+        color: #777b91;
+        line-height: 1.8;
+    }
+
+    .salary-source a {
+        color: #635bdb;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .salary-source a:hover {
+        text-decoration: underline;
+    }
+
+    .salary-note {
+        background: #f8f8fd;
+        border-left: 4px solid #635bdb;
+        padding: 13px 16px;
+        margin-top: 18px;
+        border-radius: 8px;
+        color: #62667d;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .salary-empty {
+        background: #f8f8fd;
+        border: 1px dashed #dcdaf8;
+        border-radius: 13px;
+        padding: 25px;
+        text-align: center;
+    }
+
+    .salary-empty h3 {
+        color: #292747;
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .salary-empty p {
+        font-size: 13px;
+        margin: 0;
+    }
+
+    .career-footer {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 25px;
+    }
+
+    .career-btn {
+        display: inline-block;
+        padding: 12px 19px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .primary-btn {
+        background: #635bdb;
+        color: white;
+    }
+
+    .primary-btn:hover {
+        background: #5148c7;
+        color: white;
+    }
+
+    .secondary-btn {
+        background: white;
+        color: #635bdb;
+        border: 1px solid #dcdaf8;
+    }
+
+    .empty-note {
+        color: #9295a7;
+        font-size: 14px;
+        padding: 12px 0;
+    }
+
+    @media (max-width: 600px) {
+        .career-hero {
+            padding: 30px 22px;
+        }
+
+        .career-hero h1 {
+            font-size: 25px;
+        }
+
+        .career-section {
+            padding: 20px;
+        }
+
+        .salary-amount {
+            font-size: 18px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="career-detail">
+
+    <section class="career-hero">
+        <div class="career-label">Career Exploration</div>
+
+        <h1>{{ career.title }}</h1>
+
+        <p>{{ career.short_description }}</p>
+
+        {% if career.career_area %}
+            <span class="career-label">
+                Career Area: {{ career.career_area }}
+            </span>
+        {% endif %}
+    </section>
+
+    <section class="career-section">
+        <h2>About This Career</h2>
+
+        {% if career.description %}
+            <p>{{ career.description }}</p>
+        {% else %}
+            <p>More information about this career will be added soon.</p>
+        {% endif %}
+    </section>
+
+    <!-- GHANA SALARY INSIGHTS -->
+
+    <section class="career-section">
+        <h2>💰 Ghana Salary Insights</h2>
+
+        <p class="salary-intro">
+            Explore estimated salary ranges for professionals at different
+            stages of this career in Ghana. Actual earnings may vary depending
+            on experience, qualifications, employer, industry and location.
+        </p>
+
+        {% if career.entry_salary_min or career.entry_salary_max or career.mid_salary_min or career.mid_salary_max or career.senior_salary_min or career.senior_salary_max %}
+
+            <div class="salary-grid">
+
+                {% if career.entry_salary_min or career.entry_salary_max %}
+                    <div class="salary-card">
+                        <div class="salary-level">Entry Level</div>
+
+                        <div class="salary-amount">
+                            {% if career.salary_currency == 'GHS' %}
+                                GH₵
+                            {% else %}
+                                {{ career.salary_currency }}
+                            {% endif %}
+
+                            {% if career.entry_salary_min %}
+                                {{ career.entry_salary_min|floatformat:0 }}
+                            {% else %}
+                                —
+                            {% endif %}
+
+                            -
+
+                            {% if career.entry_salary_max %}
+                                {% if career.salary_currency == 'GHS' %}GH₵{% else %}{{ career.salary_currency }}{% endif %}
+                                {{ career.entry_salary_max|floatformat:0 }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </div>
+
+                        <div class="salary-period">
+                            {{ career.get_salary_period_display }} salary
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if career.mid_salary_min or career.mid_salary_max %}
+                    <div class="salary-card">
+                        <div class="salary-level">Mid Level</div>
+
+                        <div class="salary-amount">
+                            {% if career.salary_currency == 'GHS' %}
+                                GH₵
+                            {% else %}
+                                {{ career.salary_currency }}
+                            {% endif %}
+
+                            {% if career.mid_salary_min %}
+                                {{ career.mid_salary_min|floatformat:0 }}
+                            {% else %}
+                                —
+                            {% endif %}
+
+                            -
+
+                            {% if career.mid_salary_max %}
+                                {% if career.salary_currency == 'GHS' %}GH₵{% else %}{{ career.salary_currency }}{% endif %}
+                                {{ career.mid_salary_max|floatformat:0 }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </div>
+
+                        <div class="salary-period">
+                            {{ career.get_salary_period_display }} salary
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if career.senior_salary_min or career.senior_salary_max %}
+                    <div class="salary-card">
+                        <div class="salary-level">Senior Level</div>
+
+                        <div class="salary-amount">
+                            {% if career.salary_currency == 'GHS' %}
+                                GH₵
+                            {% else %}
+                                {{ career.salary_currency }}
+                            {% endif %}
+
+                            {% if career.senior_salary_min %}
+                                {{ career.senior_salary_min|floatformat:0 }}
+                            {% else %}
+                                —
+                            {% endif %}
+
+                            -
+
+                            {% if career.senior_salary_max %}
+                                {% if career.salary_currency == 'GHS' %}GH₵{% else %}{{ career.salary_currency }}{% endif %}
+                                {{ career.senior_salary_max|floatformat:0 }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </div>
+
+                        <div class="salary-period">
+                            {{ career.get_salary_period_display }} salary
+                        </div>
+                    </div>
+                {% endif %}
+
+            </div>
+
+            <div class="salary-meta">
+                <span class="salary-tag">
+                    {{ career.get_salary_basis_display }}
+                </span>
+
+                <span class="salary-tag">
+                    {{ career.get_salary_period_display }}
+                </span>
+            </div>
+
+            {% if career.salary_source or career.salary_last_verified %}
+                <div class="salary-source">
+
+                    {% if career.salary_source %}
+                        <strong>Source:</strong>
+
+                        {% if career.salary_source_url %}
+                            <a href="{{ career.salary_source_url }}"
+                               target="_blank"
+                               rel="noopener noreferrer">
+                                {{ career.salary_source }}
+                            </a>
+                        {% else %}
+                            {{ career.salary_source }}
+                        {% endif %}
+                        <br>
+                    {% endif %}
+
+                    {% if career.salary_last_verified %}
+                        <strong>Last verified:</strong>
+                        {{ career.salary_last_verified|date:"F Y" }}
+                    {% endif %}
+
+                </div>
+            {% endif %}
+
+            {% if career.salary_notes %}
+                <div class="salary-note">
+                    {{ career.salary_notes }}
+                </div>
+            {% endif %}
+
+        {% else %}
+
+            <div class="salary-empty">
+                <h3>Salary Data Coming Soon</h3>
+
+                <p>
+                    We are working on gathering reliable Ghana-specific salary
+                    information for this career. Check back for updates.
+                </p>
+            </div>
+
+        {% endif %}
+    </section>
+
+    <section class="career-section">
+        <h2>🎓 Educational Requirements</h2>
+
+        {% if career.education_requirements %}
+            <p>{{ career.education_requirements }}</p>
+        {% else %}
+            <p>Educational requirements will be updated soon.</p>
+        {% endif %}
+    </section>
+
+    <section class="career-section">
+        <h2>🚀 Career Progression</h2>
+
+        {% if career.career_progression %}
+            <p>{{ career.career_progression }}</p>
+        {% else %}
+            <p>Career progression information will be added soon.</p>
+        {% endif %}
+    </section>
+
+    <section class="career-section">
+        <h2>🏢 Industries You Can Work In</h2>
+
+        {% if career.industries %}
+            <p>{{ career.industries }}</p>
+        {% else %}
+            <p>Industry information will be updated soon.</p>
+        {% endif %}
+    </section>
+
+    <section class="career-section">
+        <h2>💡 Skills You Should Develop</h2>
+
+        {% if skills %}
+            <div class="skills-grid">
+                {% for skill in skills %}
+                    <div class="skill-card">
+
+                        <span class="skill-type">
+                            {{ skill.get_skill_type_display }}
+                        </span>
+
+                        <h3>{{ skill.name }}</h3>
+
+                        {% if skill.description %}
+                            <p>{{ skill.description }}</p>
+                        {% endif %}
+
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-note">Skills information will be added soon.</p>
+        {% endif %}
+    </section>
+
+    <section class="career-section">
+        <h2>📚 Related UPSA Programmes</h2>
+
+        {% if academic_programmes %}
+            <div class="programmes-grid">
+                {% for programme in academic_programmes %}
+                    <div class="programme-card">
+                        <h3>{{ programme.name }}</h3>
+
+                        <span class="programme-type">
+                            {{ programme.get_programme_type_display }}
+                        </span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-note">
+                Related academic programmes will be added soon.
+            </p>
+        {% endif %}
+    </section>
+
+    <div class="career-footer">
+
+        {% if request.GET.assessment %}
+            <a href="{% url 'career:career_results' assessment_id=request.GET.assessment %}"
+               class="career-btn primary-btn">
+                ← Return to My Career Results
+            </a>
+        {% endif %}
+
+        <a href="{% url 'career:dashboard' %}"
+           class="career-btn secondary-btn">
+            Career Centre
+        </a>
+
+    </div>
+
+</div>
+{% endblock %}

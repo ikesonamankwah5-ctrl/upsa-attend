@@ -1,0 +1,713 @@
+{% extends 'base.html' %}
+
+{% block title %}Examination | UPSA Attend{% endblock %}
+
+{% block extra_css %}
+<style>
+    .exam-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .exam-header {
+        background: #ffffff;
+        padding: 25px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.05);
+    }
+
+    .exam-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #172554;
+    }
+
+    .timer {
+        background: #fff1f2;
+        color: #be123c;
+        padding: 12px 20px;
+        border-radius: 12px;
+        font-size: 20px;
+        font-weight: 800;
+    }
+
+    .timer.warning {
+        background: #fee2e2;
+        animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+        50% { opacity: 0.55; }
+    }
+
+    .progress-card,
+    .question-card {
+        background: #ffffff;
+        padding: 28px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.05);
+    }
+
+    .progress-track {
+        height: 9px;
+        background: #e5e7eb;
+        border-radius: 20px;
+        overflow: hidden;
+        margin-top: 12px;
+    }
+
+    .progress-fill {
+        height: 100%;
+        width: 0%;
+        background: #6d5dfc;
+        transition: width 0.3s ease;
+    }
+
+    .question-number {
+        color: #6d5dfc;
+        font-weight: 700;
+        margin-bottom: 15px;
+    }
+
+    .question-text {
+        font-size: 19px;
+        font-weight: 600;
+        line-height: 1.7;
+        color: #172554;
+        margin-bottom: 25px;
+    }
+
+    .option-label {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .option-label:hover {
+        border-color: #6d5dfc;
+        background: #f5f3ff;
+    }
+
+    .option-label:has(input:checked) {
+        border-color: #6d5dfc;
+        background: #f5f3ff;
+    }
+
+    .option-label input {
+        accent-color: #6d5dfc;
+        width: 18px;
+        height: 18px;
+    }
+
+    .theory-answer {
+        width: 100%;
+        min-height: 220px;
+        padding: 16px;
+        border: 1px solid #d1d5db;
+        border-radius: 12px;
+        font-size: 15px;
+        resize: vertical;
+    }
+
+    .theory-answer:focus {
+        outline: none;
+        border-color: #6d5dfc;
+    }
+
+    .navigation {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 25px;
+    }
+
+    .nav-btn {
+        padding: 12px 22px;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .previous-btn {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    .next-btn {
+        background: #6d5dfc;
+        color: white;
+    }
+
+    .submit-btn {
+        background: #dc2626;
+        color: white;
+    }
+
+    .nav-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .question-counter {
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    .save-status {
+        font-size: 13px;
+        font-weight: 600;
+        color: #64748b;
+        margin-top: 15px;
+        min-height: 20px;
+    }
+
+    .save-status.saved {
+        color: #15803d;
+    }
+
+    .save-status.error {
+        color: #dc2626;
+    }
+
+    @media(max-width: 600px) {
+        .exam-header,
+        .navigation {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .nav-btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block page_heading %}Examination Centre{% endblock %}
+
+{% block page_subheading %}
+Complete your questions before the countdown reaches zero.
+{% endblock %}
+
+
+{% block content %}
+
+<div class="exam-container">
+
+    <div class="exam-header">
+
+        <div>
+            <div class="exam-title">
+                {{ session.course_name }}
+            </div>
+
+            <small style="color:#64748b;">
+                {{ session.get_mode_display }} Mode
+            </small>
+        </div>
+
+        <div class="timer" id="examTimer">
+            00:00
+        </div>
+
+    </div>
+
+
+    <div class="progress-card">
+
+        <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+
+            <strong>Examination Progress</strong>
+
+            <span class="question-counter" id="questionCounter">
+                Question 1 of {{ questions|length }}
+            </span>
+
+        </div>
+
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="save-status" id="saveStatus">
+            Your answers are saved automatically.
+        </div>
+
+    </div>
+
+
+    <form
+        method="POST"
+        action="{% url 'submit_practice_session' session.id %}"
+        id="examForm"
+        data-save-url="{% url 'save_practice_answer' session.id %}"
+    >
+
+        {% csrf_token %}
+
+        {% for question in questions %}
+
+        <div
+            class="question-card exam-question"
+            data-question="{{ forloop.counter0 }}"
+            data-question-id="{{ question.id }}"
+            style="{% if not forloop.first %}display:none;{% endif %}"
+        >
+
+            <div class="question-number">
+                QUESTION {{ question.number }}
+            </div>
+
+            <div class="question-text">
+                {{ question.text }}
+            </div>
+
+
+            {% if question.type == 'OBJECTIVE' %}
+
+                <div class="options-container">
+
+                    {% for option in question.options %}
+
+                    <label class="option-label">
+
+                        <input
+                            type="radio"
+                            name="answer_{{ question.id }}"
+                            value="{{ option }}"
+                            {% if question.saved_answer == option %}checked{% endif %}
+                        >
+
+                        <span>{{ option }}</span>
+
+                    </label>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <textarea
+                    class="theory-answer"
+                    name="answer_{{ question.id }}"
+                    placeholder="Write your answer here..."
+                >{{ question.saved_answer }}</textarea>
+
+            {% endif %}
+
+
+            <div class="navigation">
+
+                <button
+                    type="button"
+                    class="nav-btn previous-btn"
+                    onclick="changeQuestion(-1)"
+                    {% if forloop.first %}disabled{% endif %}
+                >
+                    ← Previous
+                </button>
+
+                {% if not forloop.last %}
+
+                    <button
+                        type="button"
+                        class="nav-btn next-btn"
+                        onclick="changeQuestion(1)"
+                    >
+                        Next →
+                    </button>
+
+                {% else %}
+
+                    <button
+                        type="button"
+                        class="nav-btn submit-btn"
+                        onclick="confirmSubmission()"
+                    >
+                        Submit Examination
+                    </button>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </form>
+
+</div>
+
+
+<script>
+
+    const examForm = document.getElementById('examForm');
+
+    const questions = document.querySelectorAll('.exam-question');
+
+    const saveUrl = examForm.dataset.saveUrl;
+
+    const csrfToken = examForm.querySelector(
+        '[name=csrfmiddlewaretoken]'
+    ).value;
+
+    const saveStatus = document.getElementById('saveStatus');
+
+    let currentQuestion = 0;
+
+    let remainingSeconds = {{ remaining_seconds }};
+
+    let examSubmitted = false;
+
+    const saveTimers = new Map();
+
+    const saveQueues = new Map();
+
+
+    // =====================================
+    // AUTOMATIC ANSWER SAVING
+    // =====================================
+
+    function getQuestionAnswer(card) {
+
+        const selectedOption = card.querySelector(
+            'input[type="radio"]:checked'
+        );
+
+        if (selectedOption) {
+            return selectedOption.value;
+        }
+
+        const textarea = card.querySelector('textarea');
+
+        if (textarea) {
+            return textarea.value;
+        }
+
+        return '';
+    }
+
+
+    function updateSaveStatus(message, status = '') {
+
+        saveStatus.textContent = message;
+
+        saveStatus.className = 'save-status ' + status;
+
+    }
+
+
+    function saveQuestion(card) {
+
+        if (examSubmitted) {
+            return Promise.resolve();
+        }
+
+        const questionId = card.dataset.questionId;
+
+        const answer = getQuestionAnswer(card);
+
+        const previousSave = saveQueues.get(questionId)
+            || Promise.resolve();
+
+        const currentSave = previousSave
+            .catch(() => {})
+            .then(async () => {
+
+                const formData = new URLSearchParams();
+
+                formData.append('question_id', questionId);
+                formData.append('answer', answer);
+                formData.append('csrfmiddlewaretoken', csrfToken);
+
+                const response = await fetch(saveUrl, {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(
+                        data.message || 'Could not save your answer.'
+                    );
+                }
+
+                return true;
+
+            });
+
+        saveQueues.set(questionId, currentSave);
+
+        updateSaveStatus('Saving your answer...');
+
+        currentSave
+            .then(() => {
+
+                if (saveQueues.get(questionId) === currentSave) {
+                    updateSaveStatus(
+                        '✓ All changes saved.',
+                        'saved'
+                    );
+                }
+
+            })
+            .catch(error => {
+
+                updateSaveStatus(
+                    error.message || 'Answer saving failed. Check your connection.',
+                    'error'
+                );
+
+            });
+
+        return currentSave;
+
+    }
+
+
+    function scheduleSave(card) {
+
+        if (examSubmitted) {
+            return;
+        }
+
+        const questionId = card.dataset.questionId;
+
+        clearTimeout(saveTimers.get(questionId));
+
+        const timer = setTimeout(() => {
+
+            saveQuestion(card);
+
+        }, 500);
+
+        saveTimers.set(questionId, timer);
+
+    }
+
+
+    function flushScheduledSaves() {
+
+        const pending = [];
+
+        questions.forEach(card => {
+
+            const questionId = card.dataset.questionId;
+
+            if (saveTimers.has(questionId)) {
+
+                clearTimeout(saveTimers.get(questionId));
+
+                saveTimers.delete(questionId);
+
+                pending.push(saveQuestion(card));
+
+            }
+
+        });
+
+        return Promise.allSettled(pending);
+
+    }
+
+
+    // Listen for objective answers.
+
+    document.querySelectorAll(
+        'input[type="radio"]'
+    ).forEach(input => {
+
+        input.addEventListener('change', function() {
+
+            const card = this.closest('.exam-question');
+
+            scheduleSave(card);
+
+        });
+
+    });
+
+
+    // Listen for theory answers.
+
+    document.querySelectorAll(
+        '.theory-answer'
+    ).forEach(textarea => {
+
+        textarea.addEventListener('input', function() {
+
+            const card = this.closest('.exam-question');
+
+            scheduleSave(card);
+
+        });
+
+    });
+
+
+    // =====================================
+    // QUESTION NAVIGATION
+    // =====================================
+
+    function showQuestion(index) {
+
+        questions.forEach((question, position) => {
+
+            question.style.display =
+                position === index ? 'block' : 'none';
+
+        });
+
+        currentQuestion = index;
+
+        document.getElementById('questionCounter').textContent =
+            `Question ${index + 1} of ${questions.length}`;
+
+        const progress =
+            ((index + 1) / questions.length) * 100;
+
+        document.getElementById('progressFill').style.width =
+            progress + '%';
+
+    }
+
+
+    function changeQuestion(direction) {
+
+        const newIndex = currentQuestion + direction;
+
+        if (newIndex >= 0 && newIndex < questions.length) {
+
+            showQuestion(newIndex);
+
+        }
+
+    }
+
+
+    // =====================================
+    // COUNTDOWN TIMER
+    // =====================================
+
+    function formatTime(seconds) {
+
+        const minutes = Math.floor(seconds / 60);
+
+        const remaining = seconds % 60;
+
+        return (
+            String(minutes).padStart(2, '0') +
+            ':' +
+            String(remaining).padStart(2, '0')
+        );
+
+    }
+
+
+    async function submitExam() {
+
+        if (examSubmitted) {
+            return;
+        }
+
+        examSubmitted = true;
+
+        updateSaveStatus(
+            'Submitting examination...',
+            ''
+        );
+
+        await flushScheduledSaves();
+
+        examForm.submit();
+
+    }
+
+
+    function updateTimer() {
+
+        const timer = document.getElementById('examTimer');
+
+        timer.textContent = formatTime(remainingSeconds);
+
+        if (remainingSeconds <= 60) {
+
+            timer.classList.add('warning');
+
+        }
+
+        if (remainingSeconds <= 0) {
+
+            if (!examSubmitted) {
+
+                alert(
+                    'Your examination time has expired. Your saved answers will now be submitted.'
+                );
+
+                submitExam();
+
+            }
+
+            return;
+
+        }
+
+        remainingSeconds--;
+
+    }
+
+
+    // =====================================
+    // MANUAL SUBMISSION
+    // =====================================
+
+    function confirmSubmission() {
+
+        const confirmed = confirm(
+            'Are you sure you want to submit your examination? You cannot change your answers afterwards.'
+        );
+
+        if (confirmed) {
+
+            submitExam();
+
+        }
+
+    }
+
+
+    // =====================================
+    // INITIALISE EXAMINATION
+    // =====================================
+
+    showQuestion(0);
+
+    updateTimer();
+
+    setInterval(updateTimer, 1000);
+
+</script>
+
+{% endblock %}

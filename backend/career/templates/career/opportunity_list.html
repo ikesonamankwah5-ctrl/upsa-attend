@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}Explore Opportunities | UPSA Attend{% endblock %}
+
+{% block extra_css %}
+<style>
+.career-container { max-width:1200px; margin:auto; padding:25px; }
+.page-header {
+    background:linear-gradient(135deg,#552583,#8e44ad);
+    color:white; padding:30px; border-radius:16px; margin-bottom:25px;
+}
+.filter-card {
+    background:white; padding:20px; border-radius:12px;
+    margin-bottom:25px; border:1px solid #eee;
+}
+.filter-form { display:flex; gap:12px; flex-wrap:wrap; }
+.filter-form input,.filter-form select {
+    flex:1; min-width:180px; padding:12px;
+    border:1px solid #ddd; border-radius:8px;
+}
+.btn-primary {
+    background:#6c3483; color:white; border:none;
+    padding:12px 22px; border-radius:8px; cursor:pointer;
+}
+.btn-secondary {
+    background:#eee; color:#444; padding:12px 18px;
+    border-radius:8px; text-decoration:none;
+}
+.opportunity-grid {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:18px;
+}
+.opportunity-card {
+    background:white; border:1px solid #eee;
+    padding:22px; border-radius:13px;
+}
+.category-tag {
+    display:inline-block; background:#f1e6f8; color:#6c3483;
+    padding:6px 10px; border-radius:20px; font-size:12px;
+    margin-bottom:12px;
+}
+.opportunity-card h3 { color:#552583; font-size:18px; margin-bottom:9px; }
+.organisation { font-weight:600; color:#444; margin-bottom:12px; }
+.details { color:#777; font-size:14px; margin:7px 0; }
+.deadline { color:#c0392b; font-weight:600; }
+.view-link {
+    display:inline-block; margin-top:15px;
+    color:#6c3483; text-decoration:none; font-weight:700;
+}
+.empty-state {
+    background:white; padding:40px; text-align:center;
+    border-radius:12px; border:1px dashed #ddd; color:#777;
+}
+.results-heading {
+    display:flex; justify-content:space-between;
+    align-items:center; margin-bottom:18px;
+}
+@media(max-width:600px) {
+    .career-container { padding:12px; }
+    .page-header { padding:22px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="career-container">
+
+    <div class="page-header">
+        <h1>Explore Opportunities</h1>
+        <p>Find opportunities to build your skills, gain experience and advance your career.</p>
+    </div>
+
+    <div class="filter-card">
+        <form method="GET" class="filter-form">
+            <input type="text" name="q"
+                   placeholder="Search opportunities, organisations or locations..."
+                   value="{{ search_query }}">
+
+            <select name="category">
+                <option value="">All Categories</option>
+                {% for value,label in categories %}
+                <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="btn-primary">Search</button>
+            <a href="{% url 'career:opportunity_list' %}" class="btn-secondary">Reset</a>
+        </form>
+    </div>
+
+    <div class="results-heading">
+        <h2>Available Opportunities</h2>
+        <span>{{ opportunities|length }} result(s)</span>
+    </div>
+
+    <div class="opportunity-grid">
+        {% for opportunity in opportunities %}
+        <div class="opportunity-card">
+            <span class="category-tag">{{ opportunity.get_category_display }}</span>
+
+            <h3>{{ opportunity.title }}</h3>
+            <p class="organisation">{{ opportunity.organisation }}</p>
+
+            {% if opportunity.location %}
+            <p class="details">📍 {{ opportunity.location }}</p>
+            {% endif %}
+
+            {% if opportunity.work_mode %}
+            <p class="details">💼 {{ opportunity.work_mode }}</p>
+            {% endif %}
+
+            {% if opportunity.application_deadline %}
+            <p class="details deadline">
+                Deadline: {{ opportunity.application_deadline|date:"d M Y" }}
+            </p>
+            {% else %}
+            <p class="details">No deadline specified</p>
+            {% endif %}
+
+            <a href="{% url 'career:opportunity_detail' opportunity.id %}" class="view-link">
+                View Details →
+            </a>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <h3>No opportunities found</h3>
+            <p>Try changing your search terms or selecting another category.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

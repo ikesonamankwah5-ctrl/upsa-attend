@@ -1,0 +1,377 @@
+{% extends "base.html" %}
+
+{% block title %}Past Questions Library | UPSA Attend{% endblock %}
+
+{% block page_heading %}Academic Resources Library{% endblock %}
+
+{% block page_subheading %}
+Access and practise with past examination questions from your programme.
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .library-header {
+        background: linear-gradient(120deg, #172554, #6d28d9);
+        color: white;
+        padding: 28px;
+        border-radius: 16px;
+        margin-bottom: 25px;
+    }
+
+    .library-header h2 {
+        margin: 0 0 10px;
+        font-size: 24px;
+    }
+
+    .library-header p {
+        margin: 0;
+        line-height: 1.7;
+        opacity: 0.9;
+    }
+
+    .filter-card {
+        background: white;
+        padding: 24px;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        margin-bottom: 25px;
+    }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 15px;
+    }
+
+    .filter-group label {
+        display: block;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 8px;
+        font-size: 13px;
+    }
+
+    .filter-group select {
+        width: 100%;
+        padding: 11px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        background: white;
+        font-size: 14px;
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+
+    .filter-button {
+        background: #6d28d9;
+        color: white;
+        border: none;
+        padding: 11px 22px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .reset-button {
+        background: #e2e8f0;
+        color: #334155;
+        padding: 11px 22px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .results-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 25px 0 18px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .results-heading h3 {
+        color: #172554;
+        margin: 0;
+    }
+
+    .result-count {
+        background: #ede9fe;
+        color: #6d28d9;
+        padding: 7px 13px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .question-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 18px;
+    }
+
+    .question-card {
+        background: white;
+        padding: 22px;
+        border-radius: 14px;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.04);
+        border: 1px solid #f1f5f9;
+    }
+
+    .question-card h4 {
+        color: #172554;
+        font-size: 17px;
+        margin: 12px 0;
+    }
+
+    .question-tag {
+        display: inline-block;
+        background: #ede9fe;
+        color: #6d28d9;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .question-details {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.9;
+        margin-bottom: 18px;
+    }
+
+    .view-button {
+        display: block;
+        text-align: center;
+        background: #172554;
+        color: white;
+        padding: 11px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 13px;
+    }
+
+    .empty-state {
+        background: white;
+        padding: 45px 20px;
+        text-align: center;
+        border-radius: 15px;
+        color: #64748b;
+    }
+
+    .empty-state h3 {
+        color: #172554;
+    }
+
+    @media (max-width: 600px) {
+        .library-header {
+            padding: 22px;
+        }
+
+        .filter-card {
+            padding: 18px;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="library-header">
+    <h2>📚 Your Academic Resources Library</h2>
+
+    <p>
+        Explore past examination questions, prepare for upcoming
+        examinations and strengthen your academic performance.
+        Find questions organised by programme, level, course and year.
+    </p>
+</div>
+
+
+<div class="filter-card">
+
+    <h3 style="color:#172554; margin-top:0;">
+        Find Past Questions
+    </h3>
+
+    <form method="GET">
+
+        <div class="filter-grid">
+
+            <div class="filter-group">
+                <label>Programme</label>
+
+                <select name="programme">
+                    <option value="">All Programmes</option>
+
+                    {% for programme in programmes %}
+                    <option value="{{ programme }}"
+                        {% if selected_programme == programme %}selected{% endif %}>
+                        {{ programme }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+
+            <div class="filter-group">
+                <label>Level</label>
+
+                <select name="level">
+                    <option value="">All Levels</option>
+
+                    {% for level in levels %}
+                    <option value="{{ level }}"
+                        {% if selected_level == level %}selected{% endif %}>
+                        {{ level }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+
+            <div class="filter-group">
+                <label>Course</label>
+
+                <select name="course">
+                    <option value="">All Courses</option>
+
+                    {% for course in courses %}
+                    <option value="{{ course }}"
+                        {% if selected_course == course %}selected{% endif %}>
+                        {{ course }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+
+            <div class="filter-group">
+                <label>Academic Year</label>
+
+                <select name="academic_year">
+                    <option value="">All Years</option>
+
+                    {% for year in academic_years %}
+                    <option value="{{ year }}"
+                        {% if selected_year == year %}selected{% endif %}>
+                        {{ year }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+
+            <div class="filter-group">
+                <label>Semester</label>
+
+                <select name="semester">
+                    <option value="">All Semesters</option>
+
+                    <option value="FIRST"
+                        {% if selected_semester == 'FIRST' %}selected{% endif %}>
+                        First Semester
+                    </option>
+
+                    <option value="SECOND"
+                        {% if selected_semester == 'SECOND' %}selected{% endif %}>
+                        Second Semester
+                    </option>
+                </select>
+            </div>
+
+        </div>
+
+
+        <div class="filter-actions">
+
+            <button type="submit" class="filter-button">
+                Apply Filters
+            </button>
+
+            <a href="{% url 'past_questions_library' %}"
+               class="reset-button">
+                Reset Filters
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<div class="results-heading">
+
+    <h3>Available Past Questions</h3>
+
+    <span class="result-count">
+        {{ past_questions|length }} Results
+    </span>
+
+</div>
+
+
+{% if past_questions %}
+
+<div class="question-grid">
+
+    {% for question in past_questions %}
+
+    <div class="question-card">
+
+        <span class="question-tag">
+            {{ question.academic_year }}
+        </span>
+
+        <h4>{{ question.course_name }}</h4>
+
+        <div class="question-details">
+
+            <strong>Programme:</strong> {{ question.programme }}<br>
+
+            <strong>Level:</strong> {{ question.level }}<br>
+
+            <strong>Semester:</strong> {{ question.get_semester_display }}<br>
+
+            <strong>Examination:</strong> {{ question.examination_title }}
+
+        </div>
+
+        <a href="{% url 'view_past_question' question.id %}"
+           class="view-button">
+            View Question Paper →
+        </a>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% else %}
+
+<div class="empty-state">
+
+    <div style="font-size:45px;">📂</div>
+
+    <h3>No Past Questions Found</h3>
+
+    <p>
+        There are currently no past questions matching your search.
+        Try changing your filters or check again later.
+    </p>
+
+</div>
+
+{% endif %}
+
+{% endblock %}

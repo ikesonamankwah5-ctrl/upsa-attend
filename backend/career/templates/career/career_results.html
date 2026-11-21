@@ -1,0 +1,350 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Career Quest Results{% endblock %}
+
+{% block extra_css %}
+<style>
+    .results-page {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding-bottom: 45px;
+    }
+
+    .results-hero {
+        background: linear-gradient(135deg, #171936, #5148c7);
+        color: white;
+        padding: 42px 35px;
+        border-radius: 22px;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .results-hero h1 {
+        font-size: 30px;
+        margin: 12px 0;
+    }
+
+    .results-hero p {
+        color: #e0defe;
+        line-height: 1.7;
+        max-width: 650px;
+    }
+
+    .results-label {
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #c9c5ff;
+    }
+
+    .xp-summary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 15px;
+        padding: 11px 17px;
+        border-radius: 30px;
+        background: rgba(255,255,255,0.15);
+        font-weight: 800;
+    }
+
+    .section-heading {
+        margin: 32px 0 18px;
+    }
+
+    .section-heading h2 {
+        color: #171936;
+        font-size: 22px;
+        margin-bottom: 6px;
+    }
+
+    .section-heading p {
+        color: #777b91;
+        font-size: 14px;
+    }
+
+    .career-list {
+        display: grid;
+        gap: 18px;
+    }
+
+    .career-card {
+        background: white;
+        border: 1px solid #e9eaf2;
+        border-radius: 18px;
+        padding: 25px;
+        transition: 0.2s ease;
+    }
+
+    .career-card:hover {
+        border-color: #aaa4ef;
+        box-shadow: 0 8px 25px rgba(30,30,70,0.06);
+        transform: translateY(-2px);
+    }
+
+    .career-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .career-rank {
+        display: inline-block;
+        background: #f0efff;
+        color: #635bdb;
+        padding: 7px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 800;
+        margin-bottom: 12px;
+    }
+
+    .career-card h3 {
+        color: #171936;
+        font-size: 21px;
+        margin: 0 0 8px;
+    }
+
+    .career-area {
+        color: #635bdb;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .match-score {
+        background: #edfaf3;
+        color: #16834b;
+        padding: 9px 13px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .career-description {
+        color: #62667d;
+        line-height: 1.7;
+        font-size: 14px;
+        margin: 16px 0;
+    }
+
+    .match-explanation {
+        background: #f7f7fc;
+        border-left: 4px solid #635bdb;
+        padding: 14px 17px;
+        border-radius: 9px;
+        color: #555970;
+        font-size: 14px;
+        line-height: 1.7;
+        margin-top: 15px;
+    }
+
+    .career-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+    .career-score-note {
+        color: #9295a7;
+        font-size: 12px;
+    }
+
+    .primary-btn {
+        display: inline-block;
+        background: #635bdb;
+        color: white;
+        text-decoration: none;
+        padding: 12px 18px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 800;
+        transition: 0.2s ease;
+    }
+
+    .primary-btn:hover {
+        background: #5148c7;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .empty-results {
+        background: white;
+        border: 1px solid #e9eaf2;
+        border-radius: 18px;
+        padding: 35px;
+        text-align: center;
+    }
+
+    .empty-results h3 {
+        color: #171936;
+        margin-bottom: 10px;
+    }
+
+    .empty-results p {
+        color: #777b91;
+        line-height: 1.7;
+    }
+
+    .results-actions {
+        margin-top: 30px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .secondary-btn {
+        display: inline-block;
+        background: white;
+        color: #635bdb;
+        border: 1px solid #dcdaf8;
+        text-decoration: none;
+        padding: 12px 18px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    @media (max-width: 600px) {
+        .results-hero {
+            padding: 30px 22px;
+        }
+
+        .results-hero h1 {
+            font-size: 24px;
+        }
+
+        .career-card {
+            padding: 20px;
+        }
+
+        .career-card-footer {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .primary-btn {
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="results-page">
+
+    <section class="results-hero">
+        <div class="results-label">Your Career Quest Results</div>
+
+        <h1>🎉 You've completed your Career Quest!</h1>
+
+        <p>
+            Your answers have helped us identify career directions that may
+            suit your interests, strengths, work preferences and ambitions.
+            Explore your results and discover where your potential could take you.
+        </p>
+
+        <div class="xp-summary">
+            ⭐ {{ assessment.total_xp }} XP earned
+        </div>
+    </section>
+
+    <div class="section-heading">
+        <h2>Your Recommended Career Paths</h2>
+        <p>
+            These recommendations are based on the answers you provided.
+            They are starting points for exploration, not limits on what you can become.
+        </p>
+    </div>
+
+    {% if recommendations %}
+        <div class="career-list">
+
+            {% for recommendation in recommendations %}
+                <article class="career-card">
+
+                    <div class="career-card-top">
+                        <div>
+                            <span class="career-rank">
+                                {% if recommendation.rank == 1 %}
+                                    🏆 TOP MATCH
+                                {% elif recommendation.rank == 2 %}
+                                    🥈 SECOND MATCH
+                                {% elif recommendation.rank == 3 %}
+                                    🥉 THIRD MATCH
+                                {% else %}
+                                    CAREER MATCH #{{ recommendation.rank }}
+                                {% endif %}
+                            </span>
+
+                            <h3>{{ recommendation.career.title }}</h3>
+
+                            <div class="career-area">
+                                {{ recommendation.career.career_area }}
+                            </div>
+                        </div>
+
+                        <div class="match-score">
+                            Match score: {{ recommendation.score }}
+                        </div>
+                    </div>
+
+                    <p class="career-description">
+                        {{ recommendation.career.short_description }}
+                    </p>
+
+                    {% if recommendation.explanation %}
+                        <div class="match-explanation">
+                            <strong>Why this career appeared in your results:</strong>
+                            <br>
+                            {{ recommendation.explanation }}
+                        </div>
+                    {% endif %}
+
+                    <div class="career-card-footer">
+                        <span class="career-score-note">
+                            Based on your Career Quest responses
+                        </span>
+
+                        <a href="{% url 'career:career_detail' slug=recommendation.career.slug %}?assessment={{ assessment.id }}"
+                           class="primary-btn">
+                            Explore This Career →
+                        </a>
+                    </div>
+
+                </article>
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+        <div class="empty-results">
+            <h3>We couldn't identify a career match yet.</h3>
+
+            <p>
+                Your assessment has been completed, but there are no career
+                recommendations available. More career profiles and answer
+                mappings may need to be added.
+            </p>
+
+            <a href="{% url 'career:dashboard' %}" class="primary-btn">
+                Return to Career Centre
+            </a>
+        </div>
+    {% endif %}
+
+    <div class="results-actions">
+        <a href="{% url 'career:dashboard' %}" class="secondary-btn">
+            ← Back to Career Centre
+        </a>
+    </div>
+
+</div>
+{% endblock %}

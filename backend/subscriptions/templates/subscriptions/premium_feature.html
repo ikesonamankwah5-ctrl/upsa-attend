@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ feature.title }} | UPSA Attend{% endblock %}
+
+{% block content %}
+
+<style>
+    .premium-page {
+        max-width: 850px;
+        margin: 50px auto;
+        padding: 25px;
+    }
+
+    .premium-box {
+        background: white;
+        border: 1px solid #e9d5ff;
+        border-radius: 18px;
+        padding: 40px 25px;
+        text-align: center;
+        box-shadow: 0 8px 25px rgba(91, 33, 182, 0.06);
+    }
+
+    .premium-icon {
+        font-size: 48px;
+        margin-bottom: 15px;
+    }
+
+    .premium-box h1 {
+        color: #4c1d95;
+        margin-bottom: 12px;
+    }
+
+    .premium-box p {
+        color: #64748b;
+        line-height: 1.8;
+    }
+
+    .premium-badge {
+        display: inline-block;
+        background: #ede9fe;
+        color: #5b21b6;
+        padding: 7px 15px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .premium-button {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 12px 25px;
+        background: #6d28d9;
+        color: white;
+        text-decoration: none;
+        border-radius: 9px;
+        font-weight: 600;
+    }
+
+    .premium-button:hover {
+        background: #4c1d95;
+        color: white;
+    }
+
+    .secondary-button {
+        background: #ede9fe;
+        color: #5b21b6;
+        margin-left: 8px;
+    }
+
+    .secondary-button:hover {
+        background: #ddd6fe;
+        color: #4c1d95;
+    }
+
+    .locked-message {
+        background: #faf5ff;
+        border: 1px solid #e9d5ff;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 25px;
+    }
+
+    .status-message {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 25px;
+    }
+
+    @media(max-width: 600px) {
+        .premium-page {
+            padding: 12px;
+            margin: 25px auto;
+        }
+
+        .premium-box {
+            padding: 30px 18px;
+        }
+
+        .secondary-button {
+            margin-left: 0;
+        }
+    }
+</style>
+
+<div class="premium-page">
+
+    <div class="premium-box">
+
+        <span class="premium-badge">✧ PREMIUM FEATURE</span>
+
+        <div class="premium-icon">
+            {{ feature.icon }}
+        </div>
+
+        <h1>{{ feature.title }}</h1>
+
+        <p>{{ feature.description }}</p>
+
+        {% if not is_premium %}
+
+            <div class="locked-message">
+
+                <h3>🔒 Premium Feature Locked</h3>
+
+                <p>
+                    This feature is available to Premium subscribers.
+                    Subscribe once to unlock all four Premium features
+                    across your Practice Centre.
+                </p>
+
+                <a href="{% url 'subscriptions:plans' %}" class="premium-button">
+                    View Premium Plans
+                </a>
+
+            </div>
+
+        {% else %}
+
+            <div class="status-message">
+
+                <h3>✓ Premium Subscription Active</h3>
+
+                <p>
+                    Your Premium subscription is active.
+                    You have access to all four Premium features.
+                    The AI services are not yet activated and will become
+                    available once the AI service has been connected.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+        <a href="{% url 'practice_dashboard' %}" class="premium-button secondary-button">
+            Return to Practice Centre
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -90,7 +91,7 @@
     >
 
     <div class="timer">
-        QR refreshes in <span id="countdown">60</span> seconds
+        QR refreshes in <span id="countdown">30</span> seconds
     </div>
 
     <p class="instruction">
@@ -108,15 +109,23 @@
     const qrImage = document.getElementById("qrImage");
     const countdown = document.getElementById("countdown");
 
-    let previousSlot = Math.floor(Date.now() / 1000 / 60);
+    const QR_VALIDITY_SECONDS = 30;
+
+    let previousSlot = Math.floor(
+        Date.now() / 1000 / QR_VALIDITY_SECONDS
+    );
 
     function refreshQR() {
 
         const currentTime = Math.floor(Date.now() / 1000);
 
-        const currentSlot = Math.floor(currentTime / 60);
+        const currentSlot = Math.floor(
+            currentTime / QR_VALIDITY_SECONDS
+        );
 
-        const secondsRemaining = 60 - (currentTime % 60);
+        const secondsRemaining =
+            QR_VALIDITY_SECONDS -
+            (currentTime % QR_VALIDITY_SECONDS);
 
         countdown.textContent = secondsRemaining;
 
@@ -138,3 +147,4 @@
 
 </body>
 </html>
+```

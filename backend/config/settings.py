@@ -1,8 +1,18 @@
+
 import os
 from pathlib import Path
 import dj_database_url
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# LOAD ENVIRONMENT VARIABLES
+load_dotenv(BASE_DIR.parent / '.env', override=True)
+
+# PAYSTACK CONFIGURATION
+PAYSTACK_PUBLIC_KEY = os.environ.get('PAYSTACK_PUBLIC_KEY', '')
+PAYSTACK_SECRET_KEY = os.environ.get('PAYSTACK_SECRET_KEY', '')
+PAYSTACK_BASE_URL = 'https://api.paystack.co'
 
 # SECURITY SETTINGS
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
@@ -37,6 +47,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'django_apscheduler',
+
     'accounts',
     'classrooms',
     'students',
@@ -44,6 +57,11 @@ INSTALLED_APPS = [
     'reports',
     'academics',
     'gpa',
+    'practice',
+    'subscriptions',
+    'study_connect',
+    'career',
+    'study_simplifier',
 ]
 
 # MIDDLEWARE
@@ -60,16 +78,19 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'config.urls'
 
+# TEMPLATE CONFIGURATION
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'accounts.context_processors.user_roles',
+                'subscriptions.context_processors.subscription_status',
             ],
         },
     },
@@ -123,6 +144,11 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# PWA STATIC FILES
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
 STORAGES = {
     'default': {
         'BACKEND': 'django.core.files.storage.FileSystemStorage',
@@ -173,3 +199,7 @@ else:
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 30
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_SAVE_EVERY_REQUEST = True
+
+# MEDIA FILE SETTINGS
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

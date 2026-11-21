@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Study Group | UPSA Attend{% endblock %}
+
+{% block extra_css %}
+<style>
+    .create-container {
+        max-width: 850px;
+        margin: 35px auto;
+        padding: 20px;
+    }
+
+    .create-header {
+        background: linear-gradient(135deg, #172554, #5b21b6);
+        color: white;
+        padding: 30px;
+        border-radius: 16px;
+        margin-bottom: 25px;
+    }
+
+    .create-header h2 {
+        margin-bottom: 10px;
+    }
+
+    .create-header p {
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    .create-card {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #172554;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #5b21b6;
+        box-shadow: 0 0 0 2px rgba(91,33,182,0.1);
+    }
+
+    .help-text {
+        color: #64748b;
+        font-size: 12px;
+        margin-top: 6px;
+    }
+
+    .error-text {
+        color: #dc2626;
+        font-size: 13px;
+        margin-top: 5px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 25px;
+    }
+
+    .submit-btn {
+        background: #5b21b6;
+        color: white;
+        border: none;
+        padding: 12px 22px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .submit-btn:hover {
+        background: #4c1d95;
+    }
+
+    .cancel-btn {
+        background: #f1f5f9;
+        color: #334155;
+        padding: 12px 22px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    @media(max-width: 600px) {
+        .create-container {
+            padding: 12px;
+        }
+
+        .create-card {
+            padding: 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="create-container">
+
+    <div class="create-header">
+        <h2>👥 Create a Study Group</h2>
+        <p>
+            Bring students together to learn, collaborate and prepare
+            for examinations.
+        </p>
+    </div>
+
+    <div class="create-card">
+
+        <form method="POST">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="form-group">
+
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                </label>
+
+                {{ field }}
+
+                {% if field.help_text %}
+                    <div class="help-text">{{ field.help_text }}</div>
+                {% endif %}
+
+                {% for error in field.errors %}
+                    <div class="error-text">{{ error }}</div>
+                {% endfor %}
+
+            </div>
+            {% endfor %}
+
+            {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                    <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="form-actions">
+
+                <button type="submit" class="submit-btn">
+                    Create Study Group
+                </button>
+
+                <a href="{% url 'study_group_list' %}" class="cancel-btn">
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

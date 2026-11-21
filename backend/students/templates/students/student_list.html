@@ -1,223 +1,433 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Students | UPSA Attend</title>
+{% extends "base.html" %}
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6fb;
-            margin: 0;
-            padding: 30px;
+{% block title %}Student Management | UPSA Attend{% endblock %}
+
+{% block page_heading %}Student Management{% endblock %}
+{% block page_subheading %}Register, import and manage students across your assigned classrooms.{% endblock %}
+
+{% block extra_css %}
+<style>
+    .intro-text {
+        color: #64748b;
+        font-size: 14px;
+        margin-bottom: 24px;
+    }
+
+    .section-card {
+        background: #fff;
+        border: 1px solid #e8edf5;
+        border-radius: 16px;
+        padding: 25px;
+        margin-bottom: 24px;
+        box-shadow: 0 5px 18px rgba(15, 23, 42, .035);
+    }
+
+    .section-header {
+        margin-bottom: 22px;
+    }
+
+    .section-header h2 {
+        margin: 0;
+        color: #172554;
+        font-size: 19px;
+    }
+
+    .section-description {
+        margin-top: 6px;
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        color: #334155;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px 13px;
+        border: 1px solid #dbe2ee;
+        border-radius: 9px;
+        background: #fff;
+        font-family: inherit;
+        font-size: 14px;
+        outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: #6558df;
+        box-shadow: 0 0 0 3px rgba(101, 88, 223, .1);
+    }
+
+    .primary-btn {
+        border: none;
+        border-radius: 9px;
+        padding: 12px 20px;
+        background: #5145cd;
+        color: white;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+
+    .primary-btn:hover {
+        background: #4338b5;
+    }
+
+    .instructions {
+        margin-top: 20px;
+        padding: 18px;
+        border-radius: 11px;
+        background: #f5f6ff;
+        border: 1px solid #e5e7ff;
+    }
+
+    .instructions h3 {
+        color: #312e81;
+        font-size: 14px;
+        margin: 0 0 10px;
+    }
+
+    .instructions p {
+        color: #475569;
+        font-size: 13px;
+        line-height: 1.7;
+        margin: 5px 0;
+    }
+
+    .format-example {
+        display: inline-block;
+        padding: 9px 12px;
+        margin: 8px 0;
+        background: #fff;
+        border: 1px solid #e0e7ff;
+        border-radius: 7px;
+        color: #3730a3;
+        font-family: monospace;
+        font-size: 12px;
+    }
+
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .student-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 550px;
+    }
+
+    .student-table th {
+        padding: 14px;
+        background: #f5f6ff;
+        color: #3730a3;
+        font-size: 12px;
+        font-weight: 700;
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .student-table td {
+        padding: 14px;
+        color: #475569;
+        font-size: 13px;
+        border-bottom: 1px solid #f1f3f8;
+    }
+
+    .student-table tbody tr:hover {
+        background: #fafaff;
+    }
+
+    .student-count {
+        display: inline-block;
+        padding: 6px 11px;
+        border-radius: 20px;
+        background: #eef2ff;
+        color: #4338ca;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .empty-state {
+        padding: 35px 15px;
+        text-align: center;
+        color: #64748b;
+        background: #f8fafc;
+        border: 1px dashed #dbe2ee;
+        border-radius: 11px;
+        font-size: 13px;
+    }
+
+    .message {
+        padding: 13px 16px;
+        border-radius: 9px;
+        margin-bottom: 12px;
+        font-size: 13px;
+        background: #ecfdf5;
+        color: #047857;
+        border: 1px solid #d1fae5;
+    }
+
+    .message.error {
+        background: #fff1f2;
+        color: #be123c;
+        border-color: #ffe4e6;
+    }
+
+    @media (max-width: 600px) {
+        .section-card {
+            padding: 18px;
         }
 
-        .container {
-            max-width: 900px;
-            margin: auto;
+        .form-grid {
+            grid-template-columns: 1fr;
         }
 
-        .card {
-            background: white;
-            padding: 25px;
-            margin-bottom: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        .form-group.full-width {
+            grid-column: auto;
         }
 
-        h1, h2 {
-            color: #253b80;
-        }
-
-        label {
-            display: block;
-            margin-top: 15px;
-            margin-bottom: 6px;
-        }
-
-        input, select {
+        .primary-btn {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
         }
+    }
+</style>
+{% endblock %}
 
-        button {
-            margin-top: 20px;
-            padding: 12px 20px;
-            background: #253b80;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
+{% block content %}
 
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
-        }
+<div class="intro-text">
+    Manage student records and import class lists directly into UPSA Attend.
+</div>
 
-        th {
-            background: #253b80;
-            color: white;
-        }
 
-        .message {
-            padding: 10px;
-            background: #e6f4ea;
-            margin-bottom: 10px;
-        }
+{% if messages %}
+    {% for message in messages %}
+        <div class="message {% if message.tags == 'error' %}error{% endif %}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
 
-        a {
-            color: #253b80;
-        }
 
-        .instructions {
-            background: #f4f6fb;
-            padding: 15px;
-            border-radius: 6px;
-            margin-top: 15px;
-        }
-    </style>
-</head>
+<!-- INDIVIDUAL STUDENT REGISTRATION -->
+<section class="section-card">
 
-<body>
-
-<div class="container">
-
-    <p><a href="{% url 'dashboard' %}">← Back to Dashboard</a></p>
-
-    <h1>Student Management</h1>
-    <p>Register and manage students in your classroom.</p>
-
-    {% if messages %}
-        {% for message in messages %}
-            <p class="message">{{ message }}</p>
-        {% endfor %}
-    {% endif %}
-
-    <div class="card">
-
+    <div class="section-header">
         <h2>Register New Student</h2>
-
-        <form method="POST">
-            {% csrf_token %}
-
-            <label>Select Classroom</label>
-            <select name="classroom" required>
-                <option value="">Choose a classroom</option>
-                {% for classroom in classrooms %}
-                    <option value="{{ classroom.id }}">
-                        {{ classroom.name }}
-                    </option>
-                {% endfor %}
-            </select>
-
-            <label>Full Name</label>
-            <input type="text" name="full_name" required>
-
-            <label>Index Number</label>
-            <input type="text" name="index_number" required>
-
-            <label>Email Address (Optional)</label>
-            <input type="email" name="email">
-
-            <label>Phone Number (Optional)</label>
-            <input type="text" name="phone_number">
-
-            <button type="submit">Register Student</button>
-        </form>
-
+        <div class="section-description">
+            Add an individual student to an active classroom.
+        </div>
     </div>
 
-    <div class="card">
+    <form method="POST">
+        {% csrf_token %}
 
-        <h2>Bulk Import Students</h2>
+        <div class="form-grid">
 
-        <p>Upload an Excel or CSV file containing multiple students.</p>
+            <div class="form-group full-width">
+                <label>Select Classroom</label>
 
-        <form method="POST"
-              action="{% url 'bulk_import_students' %}"
-              enctype="multipart/form-data">
+                <select name="classroom" required>
+                    <option value="">Choose a classroom</option>
 
-            {% csrf_token %}
+                    {% for classroom in classrooms %}
+                        <option value="{{ classroom.id }}">
+                            {{ classroom.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-            <label>Select Classroom</label>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input
+                    type="text"
+                    name="full_name"
+                    placeholder="Enter student's full name"
+                    required
+                >
+            </div>
 
-            <select name="classroom" required>
-                <option value="">Choose a classroom</option>
+            <div class="form-group">
+                <label>Index Number</label>
+                <input
+                    type="text"
+                    name="index_number"
+                    placeholder="Enter index number"
+                    required
+                >
+            </div>
 
-                {% for classroom in classrooms %}
-                    <option value="{{ classroom.id }}">
-                        {{ classroom.name }}
-                    </option>
-                {% endfor %}
+            <div class="form-group">
+                <label>Email Address (Optional)</label>
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="student@example.com"
+                >
+            </div>
 
-            </select>
-
-            <label>Programme Type</label>
-
-            <select name="programme_type" required>
-                <option value="">Choose programme type</option>
-                <option value="UNDERGRADUATE">Undergraduate</option>
-                <option value="DIPLOMA">Diploma</option>
-            </select>
-
-            <p>
-                Select the correct programme type for the students
-                in this classroom. This determines which CGPA and
-                classification rules will apply.
-            </p>
-
-            <label>Choose Excel or CSV File</label>
-
-            <input type="file"
-                   name="student_file"
-                   accept=".csv,.xlsx"
-                   required>
-
-            <button type="submit">Import Students</button>
-
-        </form>
-
-        <div class="instructions">
-
-            <strong>File requirements</strong>
-
-            <p>Your first row must contain these column headings:</p>
-
-            <p><strong>full_name, index_number</strong></p>
-
-            <p>Example:</p>
-
-            <p><strong>Emmanuel Asakiya,10327557</strong></p>
-
-            <p>
-                Supported formats: Excel (.xlsx) and CSV (.csv).
-            </p>
-
-            <p>Email and phone number will automatically remain blank.</p>
+            <div class="form-group">
+                <label>Phone Number (Optional)</label>
+                <input
+                    type="text"
+                    name="phone_number"
+                    placeholder="Enter phone number"
+                >
+            </div>
 
         </div>
 
+        <button type="submit" class="primary-btn">
+            + Register Student
+        </button>
+    </form>
+
+</section>
+
+
+<!-- BULK IMPORT -->
+<section class="section-card">
+
+    <div class="section-header">
+        <h2>Bulk Import Students</h2>
+        <div class="section-description">
+            Upload an Excel or CSV file to register multiple students at once.
+        </div>
     </div>
 
-    <div class="card">
+    <form
+        method="POST"
+        action="{% url 'bulk_import_students' %}"
+        enctype="multipart/form-data"
+    >
+        {% csrf_token %}
 
-        <h2>Registered Students</h2>
+        <div class="form-grid">
 
-        <table>
+            <div class="form-group full-width">
+                <label>Select Classroom</label>
+
+                <select name="classroom" required>
+                    <option value="">Choose a classroom</option>
+
+                    {% for classroom in classrooms %}
+                        <option value="{{ classroom.id }}">
+                            {{ classroom.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group full-width">
+                <label>Programme Type</label>
+
+                <select name="programme_type" required>
+                    <option value="">Choose programme type</option>
+                    <option value="UNDERGRADUATE">Undergraduate</option>
+                    <option value="DIPLOMA">Diploma</option>
+                </select>
+            </div>
+
+            <div class="form-group full-width">
+                <label>Upload Excel or CSV File</label>
+
+                <input
+                    type="file"
+                    name="student_file"
+                    accept=".csv,.xlsx"
+                    required
+                >
+            </div>
+
+        </div>
+
+        <button type="submit" class="primary-btn">
+            ↑ Import Students
+        </button>
+
+    </form>
+
+    <div class="instructions">
+
+        <h3>File Requirements</h3>
+
+        <p>Your file must contain the required student headings in its first row.</p>
+
+        <div class="format-example">
+            full_name, index_number
+        </div>
+
+        <p><strong>Example:</strong></p>
+
+        <div class="format-example">
+            Emmanuel Asakiya, 10327557
+        </div>
+
+        <p>Supported formats: Excel (.xlsx) and CSV (.csv).</p>
+
+        <p>Email and phone number will automatically remain blank during bulk import.</p>
+
+        <p>
+            <strong>Important:</strong> Select the correct programme type because
+            it determines which GPA and classification rules apply.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- REGISTERED STUDENTS -->
+<section class="section-card">
+
+    <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+
+        <div>
+            <h2>Registered Students</h2>
+            <div class="section-description">
+                View students registered in your assigned classrooms.
+            </div>
+        </div>
+
+        <span class="student-count">
+            {{ students|length }} Students
+        </span>
+
+    </div>
+
+    <div class="table-wrapper">
+
+        <table class="student-table">
+
             <thead>
                 <tr>
+                    <th>#</th>
                     <th>Full Name</th>
                     <th>Index Number</th>
                     <th>Classroom</th>
@@ -225,23 +435,34 @@
             </thead>
 
             <tbody>
+
                 {% for student in students %}
+
                     <tr>
-                        <td>{{ student.full_name }}</td>
+                        <td>{{ forloop.counter }}</td>
+                        <td><strong>{{ student.full_name }}</strong></td>
                         <td>{{ student.index_number }}</td>
                         <td>{{ student.classroom.name }}</td>
                     </tr>
+
                 {% empty %}
+
                     <tr>
-                        <td colspan="3">No students registered yet.</td>
+                        <td colspan="4">
+                            <div class="empty-state">
+                                No students registered yet.
+                            </div>
+                        </td>
                     </tr>
+
                 {% endfor %}
+
             </tbody>
+
         </table>
 
     </div>
 
-</div>
+</section>
 
-</body>
-</html>
+{% endblock %}

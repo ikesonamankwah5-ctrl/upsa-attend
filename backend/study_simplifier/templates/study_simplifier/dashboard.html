@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+
+{% block title %}Study Simplifier | UPSA Attend{% endblock %}
+
+{% block page_heading %}Study Simplifier{% endblock %}
+{% block page_subheading %}Understand difficult topics. Learn smarter.{% endblock %}
+
+{% block extra_css %}
+
+.simplifier-hero {
+    background: linear-gradient(135deg, #171936, #635bdb);
+    color: white;
+    padding: 35px;
+    border-radius: 18px;
+    margin-bottom: 25px;
+}
+
+.simplifier-hero h1 {
+    font-size: 27px;
+    margin-bottom: 12px;
+}
+
+.simplifier-hero p {
+    color: #e1e0ff;
+    font-size: 13px;
+    line-height: 1.8;
+    max-width: 650px;
+}
+
+.premium-label {
+    display: inline-block;
+    background: rgba(255,217,120,0.2);
+    color: #ffd978;
+    padding: 7px 12px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 800;
+    margin-bottom: 18px;
+}
+
+.simplifier-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 22px;
+    flex-wrap: wrap;
+}
+
+.white-button {
+    background: white;
+    color: #5148c7;
+    padding: 12px 19px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.simplifier-stat {
+    margin-bottom: 25px;
+}
+
+.simplifier-stat h2 {
+    font-size: 25px;
+    margin-bottom: 5px;
+}
+
+.simplifier-stat p {
+    color: #85879d;
+    font-size: 12px;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 30px;
+}
+
+.feature-card {
+    background: white;
+    border: 1px solid #ececf3;
+    padding: 22px;
+    border-radius: 14px;
+}
+
+.feature-icon {
+    font-size: 25px;
+    margin-bottom: 15px;
+}
+
+.feature-card h3 {
+    font-size: 14px;
+    margin-bottom: 9px;
+}
+
+.feature-card p {
+    font-size: 12px;
+    color: #85879d;
+    line-height: 1.7;
+}
+
+.session-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 17px 0;
+    border-bottom: 1px solid #ececf3;
+}
+
+.session-item:last-child {
+    border-bottom: none;
+}
+
+.session-item h4 {
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+.session-item p {
+    font-size: 11px;
+    color: #85879d;
+}
+
+.status-badge {
+    padding: 6px 10px;
+    background: #e8f7ed;
+    color: #207a42;
+    border-radius: 20px;
+    font-size: 10px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 35px 15px;
+}
+
+.empty-state h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: #85879d;
+    font-size: 12px;
+    margin-bottom: 20px;
+}
+
+@media(max-width: 750px) {
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .simplifier-hero {
+        padding: 25px;
+    }
+
+    .simplifier-hero h1 {
+        font-size: 22px;
+    }
+}
+
+{% endblock %}
+
+{% block content %}
+
+<div class="simplifier-hero">
+
+    <span class="premium-label">✦ PREMIUM LEARNING TOOL</span>
+
+    <h1>Make Difficult Topics Easier to Understand.</h1>
+
+    <p>
+        Your personal AI learning assistant. Submit your study materials
+        and get simplified explanations, summaries, practical examples
+        and revision support.
+    </p>
+
+    <div class="simplifier-actions">
+
+        <a href="{% url 'study_simplifier:create_session' %}"
+           class="white-button">
+            + Simplify a Topic
+        </a>
+
+    </div>
+
+</div>
+
+<div class="card simplifier-stat">
+
+    <h2>{{ total_sessions }}</h2>
+
+    <p>Your saved study sessions</p>
+
+</div>
+
+<h2 class="section-title">What You Can Do</h2>
+
+<div class="feature-grid">
+
+    <div class="feature-card">
+
+        <div class="feature-icon">📖</div>
+
+        <h3>Simplify Difficult Topics</h3>
+
+        <p>
+            Turn complicated academic concepts into simple,
+            beginner-friendly explanations.
+        </p>
+
+    </div>
+
+    <div class="feature-card">
+
+        <div class="feature-icon">📝</div>
+
+        <h3>Generate Summaries</h3>
+
+        <p>
+            Get clear summaries that help you understand and
+            revise your course materials.
+        </p>
+
+    </div>
+
+    <div class="feature-card">
+
+        <div class="feature-icon">💬</div>
+
+        <h3>Ask Follow-up Questions</h3>
+
+        <p>
+            Ask questions about your study materials and
+            explore topics in greater detail.
+        </p>
+
+    </div>
+
+</div>
+
+<div class="card">
+
+    <h2 class="section-title">Your Recent Study Sessions</h2>
+
+    {% if sessions %}
+
+        {% for session in sessions %}
+
+            <div class="session-item">
+
+                <div>
+
+                    <h4>{{ session.title }}</h4>
+
+                    <p>
+                        Created {{ session.created_at|date:"M d, Y" }}
+                    </p>
+
+                </div>
+
+                <a href="{% url 'study_simplifier:session_detail' session.id %}"
+                   class="primary-button">
+                    Open
+                </a>
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div class="empty-state">
+
+            <h3>No study sessions yet</h3>
+
+            <p>
+                Start by submitting a difficult topic or study material.
+            </p>
+
+            <a href="{% url 'study_simplifier:create_session' %}"
+               class="primary-button">
+                Start Learning
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

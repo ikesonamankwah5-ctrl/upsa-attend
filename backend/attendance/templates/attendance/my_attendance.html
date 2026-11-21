@@ -1,197 +1,347 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Attendance | UPSA Attend</title>
+{% extends "base.html" %}
 
-    <style>
-        * {
-            box-sizing: border-box;
+{% block title %}My Attendance | UPSA Attend{% endblock %}
+
+{% block page_heading %}My Attendance{% endblock %}
+{% block page_subheading %}Monitor your class attendance and academic participation.{% endblock %}
+
+{% block extra_css %}
+<style>
+    .welcome-card {
+        background: linear-gradient(120deg, #172554, #4338ca);
+        color: white;
+        padding: 30px;
+        border-radius: 18px;
+        margin-bottom: 25px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .welcome-card h2 {
+        margin: 0 0 10px;
+        font-size: 25px;
+    }
+
+    .welcome-card p {
+        color: #e0e7ff;
+        margin: 6px 0;
+        font-size: 14px;
+    }
+
+    .student-index {
+        display: inline-block;
+        margin-top: 12px;
+        padding: 7px 12px;
+        background: rgba(255,255,255,.13);
+        border-radius: 8px;
+        font-size: 13px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 25px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 23px;
+        border-radius: 15px;
+        border: 1px solid #edf0f5;
+        box-shadow: 0 4px 15px rgba(15,23,42,.04);
+    }
+
+    .stat-label {
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 13px;
+    }
+
+    .stat-value {
+        color: #172554;
+        font-size: 30px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .stat-note {
+        color: #94a3b8;
+        font-size: 12px;
+        margin-top: 8px;
+    }
+
+    .progress-card,
+    .history-card {
+        background: white;
+        border: 1px solid #edf0f5;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(15,23,42,.04);
+    }
+
+    .section-heading {
+        margin: 0 0 7px;
+        color: #172554;
+        font-size: 18px;
+    }
+
+    .section-description {
+        color: #64748b;
+        font-size: 13px;
+        margin: 0 0 22px;
+    }
+
+    .progress-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 12px;
+        font-size: 14px;
+    }
+
+    .progress-percentage {
+        color: #4338ca;
+        font-weight: 800;
+        font-size: 20px;
+    }
+
+    .progress-track {
+        height: 12px;
+        width: 100%;
+        background: #eef2ff;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        width: {{ attendance_percentage }}%;
+        background: linear-gradient(90deg, #4f46e5, #818cf8);
+        border-radius: 20px;
+    }
+
+    .history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .record-count {
+        background: #eef2ff;
+        color: #4338ca;
+        padding: 7px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .attendance-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 600px;
+    }
+
+    .attendance-table th {
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+        font-weight: 700;
+        padding: 15px;
+        text-align: left;
+    }
+
+    .attendance-table td {
+        padding: 16px 15px;
+        border-bottom: 1px solid #f1f5f9;
+        color: #334155;
+        font-size: 13px;
+    }
+
+    .attendance-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .course-code {
+        display: block;
+        color: #172554;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .course-name {
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    .status {
+        display: inline-block;
+        padding: 6px 11px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .present {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .absent {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 45px 20px;
+    }
+
+    .empty-icon {
+        font-size: 38px;
+        margin-bottom: 12px;
+    }
+
+    .empty-state h3 {
+        color: #172554;
+        margin-bottom: 8px;
+    }
+
+    .empty-state p {
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    @media (max-width: 1000px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 600px) {
+        .welcome-card {
+            padding: 23px;
         }
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f6fb;
-            color: #202b45;
+        .welcome-card h2 {
+            font-size: 21px;
         }
 
-        .header {
-            background: #172554;
-            color: white;
-            padding: 22px 7%;
+        .stats-grid {
+            gap: 12px;
         }
 
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
+        .stat-card {
+            padding: 17px;
         }
 
-        .header p {
-            margin-bottom: 0;
-            color: #dbeafe;
+        .stat-value {
+            font-size: 25px;
         }
 
-        .container {
-            max-width: 1100px;
-            margin: 35px auto;
-            padding: 0 20px;
+        .progress-card,
+        .history-card {
+            padding: 18px;
         }
 
-        .back {
-            display: inline-block;
-            margin-bottom: 20px;
-            color: #1d4ed8;
-            text-decoration: none;
-            font-weight: bold;
+        .history-header {
+            align-items: flex-start;
+            flex-direction: column;
         }
+    }
+</style>
+{% endblock %}
 
-        .welcome {
-            margin-bottom: 25px;
-        }
+{% block content %}
 
-        .welcome h2 {
-            margin-bottom: 8px;
-        }
+<section class="welcome-card">
+    <h2>Hello, {{ student.full_name }} 👋</h2>
+    <p>Welcome to your personal attendance dashboard.</p>
+    <p>Keep track of your attendance and stay consistent throughout the semester.</p>
 
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-            gap: 18px;
-            margin-bottom: 30px;
-        }
+    <span class="student-index">
+        Index Number: {{ student.index_number }}
+    </span>
+</section>
 
-        .card {
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.05);
-        }
+<section class="stats-grid">
 
-        .card p {
-            color: #64748b;
-            margin: 0 0 12px;
-        }
+    <div class="stat-card">
+        <div class="stat-label">Total Classes</div>
+        <h2 class="stat-value">{{ total_classes }}</h2>
+        <div class="stat-note">Recorded class sessions</div>
+    </div>
 
-        .card h2 {
-            margin: 0;
-            font-size: 30px;
-            color: #172554;
-        }
+    <div class="stat-card">
+        <div class="stat-label">Classes Attended</div>
+        <h2 class="stat-value">{{ classes_attended }}</h2>
+        <div class="stat-note">Sessions you attended</div>
+    </div>
 
-        .history {
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.05);
-            overflow-x: auto;
-        }
+    <div class="stat-card">
+        <div class="stat-label">Classes Missed</div>
+        <h2 class="stat-value">{{ classes_missed }}</h2>
+        <div class="stat-note">Sessions you missed</div>
+    </div>
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 550px;
-        }
+    <div class="stat-card">
+        <div class="stat-label">Attendance Rate</div>
+        <h2 class="stat-value">{{ attendance_percentage }}%</h2>
+        <div class="stat-note">Your overall attendance</div>
+    </div>
 
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb;
-        }
+</section>
 
-        th {
-            background: #f8fafc;
-            color: #475569;
-        }
+<section class="progress-card">
 
-        .present {
-            color: #15803d;
-            font-weight: bold;
-        }
+    <h3 class="section-heading">Attendance Progress</h3>
+    <p class="section-description">
+        Your overall attendance performance at a glance.
+    </p>
 
-        .absent {
-            color: #dc2626;
-            font-weight: bold;
-        }
+    <div class="progress-info">
+        <span>Overall attendance</span>
+        <span class="progress-percentage">{{ attendance_percentage }}%</span>
+    </div>
 
-        .empty {
-            text-align: center;
-            padding: 30px;
-            color: #64748b;
-        }
+    <div class="progress-track">
+        <div class="progress-fill"></div>
+    </div>
 
-        @media (max-width: 600px) {
-            .header {
-                padding: 20px;
-            }
+</section>
 
-            .container {
-                margin-top: 22px;
-            }
+<section class="history-card">
 
-            .history {
-                padding: 15px;
-            }
-        }
-    </style>
-</head>
-
-<body>
-
-<header class="header">
-    <h1>UPSA Attend</h1>
-    <p>My Attendance Dashboard</p>
-</header>
-
-<main class="container">
-
-    <a class="back" href="{% url 'dashboard' %}">
-        ← Back to Dashboard
-    </a>
-
-    <section class="welcome">
-        <h2>My Attendance</h2>
-        <p>
-            Welcome, {{ student.full_name }}.
-            Here is your attendance record.
-        </p>
-        <p>
-            Index Number: {{ student.index_number }}
-        </p>
-    </section>
-
-    <section class="cards">
-
-        <div class="card">
-            <p>Total Classes</p>
-            <h2>{{ total_classes }}</h2>
+    <div class="history-header">
+        <div>
+            <h3 class="section-heading">Attendance History</h3>
+            <p class="section-description" style="margin-bottom: 0;">
+                Review your attendance records for each class session.
+            </p>
         </div>
-
-        <div class="card">
-            <p>Classes Attended</p>
-            <h2>{{ classes_attended }}</h2>
-        </div>
-
-        <div class="card">
-            <p>Classes Missed</p>
-            <h2>{{ classes_missed }}</h2>
-        </div>
-
-        <div class="card">
-            <p>Attendance Percentage</p>
-            <h2>{{ attendance_percentage }}%</h2>
-        </div>
-
-    </section>
-
-    <section class="history">
-
-        <h2>Attendance History</h2>
 
         {% if records %}
+        <span class="record-count">
+            {{ records|length }} Record{{ records|length|pluralize }}
+        </span>
+        {% endif %}
+    </div>
 
-        <table>
+    {% if records %}
+
+    <div class="table-wrapper">
+        <table class="attendance-table">
             <thead>
                 <tr>
                     <th>Date</th>
@@ -204,35 +354,44 @@
             <tbody>
                 {% for record in records %}
                 <tr>
-                    <td>{{ record.session.lecture_date|date:"d M Y" }}</td>
                     <td>
-                        {{ record.session.course_code }}
-                        - {{ record.session.course_name }}
+                        {{ record.session.lecture_date|date:"d M Y" }}
                     </td>
+
+                    <td>
+                        <span class="course-code">
+                            {{ record.session.course_code }}
+                        </span>
+                        <span class="course-name">
+                            {{ record.session.course_name }}
+                        </span>
+                    </td>
+
                     <td>{{ record.session.classroom }}</td>
+
                     <td>
                         {% if record.status == "Present" %}
-                            <span class="present">Present</span>
+                            <span class="status present">Present</span>
                         {% else %}
-                            <span class="absent">Absent</span>
+                            <span class="status absent">Absent</span>
                         {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+    </div>
 
-        {% else %}
+    {% else %}
 
-        <div class="empty">
-            <p>You do not have any attendance records yet.</p>
-        </div>
+    <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3>No Attendance Records Yet</h3>
+        <p>Your attendance history will appear here once class sessions are recorded.</p>
+    </div>
 
-        {% endif %}
+    {% endif %}
 
-    </section>
+</section>
 
-</main>
-
-</body>
-</html>
+{% endblock %}

@@ -49,6 +49,13 @@ urlpatterns = [
         name='rotating_qr_check_in'
     ),
 
+    # Student camera scanner
+    path(
+        'scan-attendance/',
+        views.scan_attendance,
+        name='scan_attendance'
+    ),
+
     # Student personal attendance history
     path(
         'my-attendance/',

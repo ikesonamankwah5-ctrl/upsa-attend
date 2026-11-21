@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+
+{% block title %}Simplify a Topic | UPSA Attend{% endblock %}
+
+{% block page_heading %}Simplify a Topic{% endblock %}
+{% block page_subheading %}Upload your lecture notes or paste your study material.{% endblock %}
+
+{% block extra_css %}
+
+.form-container {
+    max-width: 850px;
+    margin: auto;
+}
+
+.form-intro {
+    background: linear-gradient(135deg, #171936, #635bdb);
+    padding: 28px;
+    border-radius: 15px;
+    color: white;
+    margin-bottom: 25px;
+}
+
+.form-intro h2 {
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+
+.form-intro p {
+    font-size: 12px;
+    color: #e1e0ff;
+    line-height: 1.8;
+}
+
+.form-card {
+    background: white;
+    border: 1px solid #ececf3;
+    border-radius: 14px;
+    padding: 28px;
+}
+
+.form-group {
+    margin-bottom: 22px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 9px;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #dedee9;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #635bdb;
+    box-shadow: 0 0 0 3px rgba(99,91,219,0.1);
+}
+
+.form-group textarea {
+    min-height: 220px;
+    resize: vertical;
+    line-height: 1.7;
+}
+
+.upload-box {
+    border: 2px dashed #c9c6ed;
+    background: #f8f7ff;
+    border-radius: 12px;
+    padding: 28px;
+    text-align: center;
+}
+
+.upload-icon {
+    font-size: 35px;
+    margin-bottom: 12px;
+}
+
+.upload-box h3 {
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.upload-box p {
+    color: #85879d;
+    font-size: 11px;
+    margin-bottom: 15px;
+}
+
+.upload-box input {
+    background: white;
+    cursor: pointer;
+}
+
+.form-hint {
+    font-size: 11px;
+    color: #85879d;
+    margin-top: 8px;
+    line-height: 1.6;
+}
+
+.or-divider {
+    text-align: center;
+    margin: 22px 0;
+    color: #85879d;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.secondary-button {
+    display: inline-block;
+    padding: 11px 18px;
+    border: 1px solid #dedee9;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #555;
+}
+
+{% endblock %}
+
+{% block content %}
+
+<div class="form-container">
+
+    <div class="form-intro">
+
+        <h2>Let's Make Learning Easier.</h2>
+
+        <p>
+            Upload your lecture notes, course materials or textbook extracts.
+            You can upload up to 12 documents in one study session.
+        </p>
+
+    </div>
+
+    <div class="form-card">
+
+        <form method="POST" enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            <div class="form-group">
+
+                <label for="title">What topic are you studying?</label>
+
+                <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    placeholder="e.g. Principles of Financial Management"
+                    maxlength="200"
+                    required
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="uploaded_files">
+                    Upload Your Lecture Notes
+                </label>
+
+                <div class="upload-box">
+
+                    <div class="upload-icon">📚</div>
+
+                    <h3>Select up to 12 lecture notes</h3>
+
+                    <p>
+                        PDF, DOCX, PPTX and TXT formats supported.
+                        Maximum 20MB per file.
+                    </p>
+
+                    <input
+                        type="file"
+                        name="uploaded_files"
+                        id="uploaded_files"
+                        accept=".pdf,.docx,.pptx,.txt"
+                        multiple
+                    >
+
+                    <p class="form-hint">
+                        Hold CTRL while selecting files to choose multiple
+                        documents on Windows.
+                    </p>
+
+                </div>
+
+                <p class="form-hint">
+                    You can select up to 12 documents at once.
+                </p>
+
+            </div>
+
+            <div class="or-divider">
+                OR PASTE YOUR STUDY MATERIAL
+            </div>
+
+            <div class="form-group">
+
+                <label for="source_text">Paste Study Material</label>
+
+                <textarea
+                    id="source_text"
+                    name="source_text"
+                    placeholder="Paste your lecture notes or study material here..."
+                ></textarea>
+
+            </div>
+
+            <div class="form-actions">
+
+                <button type="submit" class="primary-button">
+                    Save Study Material
+                </button>
+
+                <a
+                    href="{% url 'study_simplifier:dashboard' %}"
+                    class="secondary-button"
+                >
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,260 +1,466 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | UPSA Attend</title>
+{% extends "base.html" %}
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
+{% block title %}UPSA Attend | Dashboard{% endblock %}
 
-        body {
-            background: #f4f6fb;
-            display: flex;
-            min-height: 100vh;
-        }
+{% block page_heading %}Dashboard Overview{% endblock %}
+{% block page_subheading %}Welcome to your academic workspace.{% endblock %}
 
-        .sidebar {
-            width: 250px;
-            background: #253b80;
-            color: white;
-            padding: 30px 20px;
-            flex-shrink: 0;
-        }
+{% block extra_css %}
 
-        .sidebar h2 {
-            margin-bottom: 40px;
-        }
+/* WELCOME BANNER */
 
-        .sidebar a {
-            display: block;
-            color: white;
-            text-decoration: none;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-        }
+.welcome {
+    background: linear-gradient(115deg, #29275f, #6955dc);
+    border-radius: 18px;
+    padding: 35px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    overflow: hidden;
+    position: relative;
+}
 
-        .sidebar a:hover {
-            background: #4059a5;
-        }
+.welcome h1 {
+    font-size: 27px;
+    margin-bottom: 12px;
+}
 
-        .logout-form button {
-            display: block;
-            width: 100%;
-            color: white;
-            background: transparent;
-            border: none;
-            text-align: left;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-        }
+.welcome p {
+    color: #e1ddff;
+    font-size: 13px;
+    line-height: 1.8;
+}
 
-        .logout-form button:hover {
-            background: #4059a5;
-        }
+.welcome-badge {
+    background: rgba(255,255,255,0.14);
+    padding: 14px 18px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
 
-        .main {
-            flex: 1;
-            min-height: 100vh;
-            padding: 35px;
-            display: flex;
-            flex-direction: column;
-        }
+/* STUDENT QR SCANNER */
 
-        .header {
-            margin-bottom: 30px;
-        }
+.scan-banner {
+    background: linear-gradient(115deg, #172554, #4338ca);
+    padding: 23px 28px;
+    border-radius: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+    color: white;
+}
 
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
+.scan-banner h2 {
+    font-size: 17px;
+    margin-bottom: 7px;
+}
 
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
+.scan-banner p {
+    color: #ddd6fe;
+    font-size: 12px;
+    line-height: 1.7;
+}
 
-        .card h3 {
-            color: #253b80;
-            margin-bottom: 12px;
-        }
+.scan-button {
+    background: white;
+    color: #4338ca;
+    padding: 13px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: 0.2s;
+}
 
-        .card p {
-            color: #666;
-        }
+.scan-button:hover {
+    background: #eeeaff;
+    transform: translateY(-2px);
+}
 
-        .card a {
-            text-decoration: none;
-            color: inherit;
-        }
+/* SECTION HEADINGS */
 
-        .card:hover {
-            transform: translateY(-3px);
-            transition: 0.2s;
-        }
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 17px;
+}
 
-        .footer {
-            margin-top: auto;
-            padding: 35px 10px 10px;
-            text-align: center;
-            color: #777;
-            font-size: 13px;
-            line-height: 2;
-        }
+.section-heading h2 {
+    font-size: 17px;
+    font-weight: 700;
+}
 
-        .footer strong {
-            color: #253b80;
-        }
+.section-heading p {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 5px;
+}
 
-        .footer-links {
-            margin-top: 8px;
-        }
+/* FEATURE CARDS */
 
-        .footer-links a {
-            color: #253b80;
-            text-decoration: none;
-            margin: 0 10px;
-            font-weight: bold;
-        }
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 17px;
+    margin-bottom: 32px;
+}
 
-        .footer-links a:hover {
-            text-decoration: underline;
-        }
+.feature-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    transition: 0.25s;
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
 
-        @media (max-width: 700px) {
-            body {
-                flex-direction: column;
-            }
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 9px 25px rgba(34, 29, 85, 0.08);
+    border-color: #d8d1ff;
+}
 
-            .sidebar {
-                width: 100%;
-                padding: 20px;
-            }
+.feature-icon {
+    width: 43px;
+    height: 43px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 21px;
+    margin-bottom: 17px;
+}
 
-            .sidebar h2 {
-                margin-bottom: 15px;
-            }
+.purple-bg { background: #eeeaff; }
+.blue-bg { background: #e8f1ff; }
+.green-bg { background: #e4f8ef; }
+.orange-bg { background: #fff0df; }
+.pink-bg { background: #ffeaf2; }
+.yellow-bg { background: #fff6d9; }
 
-            .main {
-                padding: 20px;
-                min-height: auto;
-            }
+.feature-card h3 {
+    font-size: 13px;
+    margin-bottom: 9px;
+}
 
-            .footer {
-                margin-top: 40px;
-            }
-        }
-    </style>
-</head>
+.feature-card p {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+}
 
-<body>
+.feature-arrow {
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 16px;
+    display: block;
+}
 
-    <div class="sidebar">
-        <h2>UPSA Attend</h2>
+/* AI BANNER */
 
-        <a href="/accounts/dashboard/">Dashboard</a>
-        <a href="/classrooms/">My Classroom</a>
-        <a href="/students/">Students</a>
-        <a href="/attendance/">Take Attendance</a>
+.ai-banner {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
 
-        <a href="{% url 'my_attendance' %}">My Attendance</a>
+.ai-banner h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+}
 
-        {% if request.user.student_profile %}
-            <a href="{% url 'cgpa_dashboard' %}">CGPA Calculator</a>
-        {% endif %}
+.ai-banner p {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.8;
+}
 
-        <a href="/reports/">Attendance Reports</a>
-        <a href="{% url 'student_attendance_history' %}">Student Attendance History</a>
-        <a href="{% url 'attendance_analytics' %}">Attendance Analytics</a>
-        <a href="{% url 'low_attendance_alerts' %}">Low Attendance Alerts</a>
+.ai-tag {
+    background: #eeeaff;
+    color: var(--primary);
+    padding: 10px 15px;
+    border-radius: 9px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
 
-        <form method="POST" action="{% url 'logout' %}" class="logout-form">
-            {% csrf_token %}
-            <button type="submit">Logout</button>
-        </form>
+/* FOOTER */
+
+.dashboard-footer {
+    border-top: 1px solid var(--border);
+    padding-top: 22px;
+    margin-top: 40px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 2;
+}
+
+.dashboard-footer strong,
+.dashboard-footer a {
+    color: var(--primary);
+}
+
+.dashboard-footer a {
+    margin: 0 8px;
+    font-weight: 600;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1050px) {
+    .feature-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .welcome {
+        padding: 25px 20px;
+    }
+
+    .welcome h1 {
+        font-size: 21px;
+    }
+
+    .welcome-badge {
+        display: none;
+    }
+
+    .scan-banner {
+        display: block;
+        padding: 22px;
+    }
+
+    .scan-button {
+        display: inline-block;
+        margin-top: 16px;
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .feature-card {
+        padding: 19px;
+    }
+
+    .ai-banner {
+        display: block;
+    }
+
+    .ai-tag {
+        display: inline-block;
+        margin-top: 15px;
+    }
+}
+
+{% endblock %}
+
+
+{% block content %}
+
+<!-- WELCOME BANNER -->
+
+<section class="welcome">
+
+    <div>
+        <h1>
+            Welcome back,
+            {{ request.user.first_name|default:request.user.username }}! 👋
+        </h1>
+
+        <p>
+            Your academic journey matters.<br>
+            Manage your studies, track your progress and prepare for success.
+        </p>
     </div>
 
-    <div class="main">
-
-        <div class="header">
-            <h1>Welcome, {{ request.user.first_name }}!</h1>
-            <p>Manage your classroom attendance from one place.</p>
-        </div>
-
-        <div class="cards">
-
-            <div class="card">
-                <h3>My Classroom</h3>
-                <p>Manage your class information.</p>
-            </div>
-
-            <div class="card">
-                <h3>Students</h3>
-                <p>Register and manage students.</p>
-            </div>
-
-            <div class="card">
-                <h3>Attendance</h3>
-                <p>Record daily class attendance.</p>
-            </div>
-
-            <div class="card">
-                <h3>Reports</h3>
-                <p>View attendance statistics.</p>
-            </div>
-
-            <div class="card">
-                <a href="{% url 'my_attendance' %}">
-                    <h3>My Attendance</h3>
-                    <p>View your personal attendance records, classes attended and attendance percentage.</p>
-                </a>
-            </div>
-
-            {% if request.user.student_profile %}
-                <div class="card">
-                    <a href="{% url 'cgpa_dashboard' %}">
-                        <h3>CGPA Calculator</h3>
-                        <p>Calculate your CGPA, track your academic progress and estimate your degree classification.</p>
-                    </a>
-                </div>
-            {% endif %}
-
-        </div>
-
-        <footer class="footer">
-            <p>© 2026 UPSA Attend. All rights reserved.</p>
-
-            <p>
-                Powered by <strong>Ikeson Amankwah</strong>
-            </p>
-
-            <div class="footer-links">
-                <a href="https://www.linkedin.com/in/isaac-amankwah-02412639b/"
-                   target="_blank"
-                   rel="noopener noreferrer">
-                    LinkedIn
-                </a>
-
-                <a href="tel:+233507077856">
-                    Call: +233 50 707 7856
-                </a>
-            </div>
-        </footer>
-
+    <div class="welcome-badge">
+        🎓 &nbsp; Learn. Grow. Excel.
     </div>
 
-</body>
-</html>
+</section>
+
+
+<!-- STUDENT QR SCANNER -->
+
+{% if is_student %}
+
+<section class="scan-banner">
+
+    <div>
+        <h2>📷 Ready to attend your lecture?</h2>
+
+        <p>
+            Scan your lecturer's attendance QR code
+            and record your attendance instantly.
+        </p>
+    </div>
+
+    <a href="{% url 'scan_attendance' %}" class="scan-button">
+        📷 Scan Attendance QR →
+    </a>
+
+</section>
+
+{% endif %}
+
+
+<!-- ACADEMIC WORKSPACE -->
+
+<div class="section-heading">
+    <div>
+        <h2>Your Academic Workspace</h2>
+        <p>Everything you need to manage your academic journey.</p>
+    </div>
+</div>
+
+
+<section class="feature-grid">
+
+    <a href="{% url 'classroom_list' %}" class="feature-card">
+        <div class="feature-icon purple-bg">🏫</div>
+        <h3>My Classroom</h3>
+        <p>Access classroom information and manage your academic class.</p>
+        <span class="feature-arrow">Explore →</span>
+    </a>
+
+    <a href="{% url 'attendance_list' %}" class="feature-card">
+        <div class="feature-icon blue-bg">📋</div>
+        <h3>Attendance Management</h3>
+        <p>Record and manage attendance for your classes.</p>
+        <span class="feature-arrow">Explore →</span>
+    </a>
+
+    <a href="{% url 'my_attendance' %}" class="feature-card">
+        <div class="feature-icon green-bg">📊</div>
+        <h3>My Attendance</h3>
+        <p>Review your attendance records and monitor your attendance history.</p>
+        <span class="feature-arrow">View records →</span>
+    </a>
+
+    {% if request.user.student_profile %}
+    <a href="{% url 'cgpa_dashboard' %}" class="feature-card">
+        <div class="feature-icon orange-bg">🎯</div>
+        <h3>GPA & CGPA Calculator</h3>
+        <p>Calculate your academic performance and track your progress.</p>
+        <span class="feature-arrow">Calculate →</span>
+    </a>
+    {% endif %}
+
+    <a href="{% url 'student_list' %}" class="feature-card">
+        <div class="feature-icon pink-bg">👥</div>
+        <h3>Student Management</h3>
+        <p>Access student records and classroom information.</p>
+        <span class="feature-arrow">Explore →</span>
+    </a>
+
+    <a href="{% url 'report_dashboard' %}" class="feature-card">
+        <div class="feature-icon yellow-bg">📈</div>
+        <h3>Reports & Analytics</h3>
+        <p>Explore attendance reports and useful academic statistics.</p>
+        <span class="feature-arrow">View reports →</span>
+    </a>
+
+    <!-- STUDY CONNECT -->
+
+    <a href="{% url 'study_group_list' %}" class="feature-card">
+        <div class="feature-icon purple-bg">🤝</div>
+        <h3>Study Connect</h3>
+        <p>Find study partners, join academic groups and collaborate with fellow students.</p>
+        <span class="feature-arrow">Connect →</span>
+    </a>
+
+    <!-- ACADEMIC CALENDAR -->
+
+    <a href="{% url 'academic_calendar' %}" class="feature-card">
+        <div class="feature-icon blue-bg">📅</div>
+        <h3>Academic Calendar</h3>
+        <p>Access official university academic calendars and important academic schedules.</p>
+        <span class="feature-arrow">View calendar →</span>
+    </a>
+
+    <!-- CAREER AND OPPORTUNITIES -->
+
+    <a href="{% url 'career:dashboard' %}" class="feature-card">
+        <div class="feature-icon green-bg">🚀</div>
+        <h3>Career & Opportunities</h3>
+        <p>Explore career pathways, internships, scholarships and opportunities for your future.</p>
+        <span class="feature-arrow">Explore careers →</span>
+    </a>
+
+</section>
+
+
+<!-- AI LEARNING -->
+
+<div class="section-heading">
+    <div>
+        <h2>AI-Powered Learning</h2>
+        <p>A smarter way to understand, practise and prepare.</p>
+    </div>
+</div>
+
+
+<section class="ai-banner">
+
+    <div>
+        <h3>✨ Your Academic Learning Companion</h3>
+
+        <p>
+            Simplify lecture notes, generate examination-style questions,
+            practise with timed assessments and strengthen your understanding
+            of difficult topics — all in one place.
+            <br>
+            UPSA Attend supports your learning journey with tools designed
+            to make studying more effective and help you prepare confidently
+            for examinations.
+        </p>
+    </div>
+
+</section>
+
+
+<!-- FOOTER -->
+
+<footer class="dashboard-footer">
+
+    <p>© 2026 UPSA Attend. All rights reserved.</p>
+
+    <p>
+        Powered by <strong>Ikeson Amankwah</strong>
+    </p>
+
+    <p>
+        <a href="https://www.linkedin.com/in/isaac-amankwah-02412639b/"
+           target="_blank"
+           rel="noopener noreferrer">
+            LinkedIn
+        </a>
+
+        <a href="tel:+233507077856">
+            Contact
+        </a>
+    </p>
+
+</footer>
+
+{% endblock %}

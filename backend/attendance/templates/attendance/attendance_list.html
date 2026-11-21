@@ -114,7 +114,7 @@
 
     .attendance-table {
         width: 100%;
-        min-width: 1050px;
+        min-width: 1150px;
         border-collapse: collapse;
     }
 
@@ -202,6 +202,11 @@
     .records-btn {
         background: #eef2ff;
         color: #4338ca;
+    }
+
+    .delete-btn {
+        background: #fee2e2;
+        color: #b91c1c;
     }
 
     .action-btn:hover {
@@ -346,6 +351,10 @@
                     <th>Session Control</th>
                     <th>Rotating QR</th>
                     <th>Records</th>
+
+                    {% if can_delete_sessions %}
+                        <th>Delete</th>
+                    {% endif %}
                 </tr>
             </thead>
 
@@ -459,12 +468,31 @@
                             </a>
                         </td>
 
+                        {% if can_delete_sessions %}
+                            <td>
+                                <form
+                                    method="POST"
+                                    action="{% url 'delete_attendance_session' session.id %}"
+                                    onsubmit="return confirm('WARNING: Permanently delete {{ session.course_code|escapejs }} on {{ session.lecture_date|date:'d M Y' }} and ALL its attendance records? This action cannot be undone.');"
+                                >
+                                    {% csrf_token %}
+
+                                    <button
+                                        type="submit"
+                                        class="action-btn delete-btn"
+                                    >
+                                        Delete Class
+                                    </button>
+                                </form>
+                            </td>
+                        {% endif %}
+
                     </tr>
 
                 {% empty %}
 
                     <tr>
-                        <td colspan="8">
+                        <td colspan="{% if can_delete_sessions %}9{% else %}8{% endif %}">
                             <div class="empty-state">
                                 <strong>No Attendance Sessions Yet</strong>
                                 Create your first attendance session to get started.

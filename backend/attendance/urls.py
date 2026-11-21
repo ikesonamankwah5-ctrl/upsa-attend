@@ -21,6 +21,13 @@ urlpatterns = [
         name='toggle_attendance_session'
     ),
 
+    # Permanently delete an attendance session and its records
+    path(
+        'session/<int:session_id>/delete/',
+        views.delete_attendance_session,
+        name='delete_attendance_session'
+    ),
+
     # Permanent classroom QR check-in
     path(
         'scan/<uuid:qr_token>/',

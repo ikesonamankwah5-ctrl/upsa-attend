@@ -1,4 +1,3 @@
-
 from datetime import timedelta
 from io import BytesIO
 
@@ -230,8 +229,48 @@ def attendance_list(request):
             'classrooms': classrooms,
             'sessions': sessions,
             'course_offerings': course_offerings,
+            'can_delete_sessions': administrator or lecturer,
         }
     )
+
+
+# --------------------------------------------------
+# DELETE ATTENDANCE SESSION
+# --------------------------------------------------
+
+@login_required
+@require_POST
+def delete_attendance_session(request, session_id):
+
+    # Only administrators and lecturers can delete sessions.
+    if not (
+        is_administrator(request.user)
+        or is_lecturer(request.user)
+    ):
+        raise PermissionDenied
+
+    # Restrict lecturers to their assigned classrooms.
+    managed_classrooms = get_managed_classrooms(request.user)
+
+    session = get_object_or_404(
+        AttendanceSession.objects.filter(
+            classroom__in=managed_classrooms
+        ),
+        id=session_id
+    )
+
+    course_code = session.course_code
+    lecture_date = session.lecture_date
+
+    # Delete the session and all associated attendance records.
+    session.delete()
+
+    messages.success(
+        request,
+        f'{course_code} class on {lecture_date} and its attendance records were permanently deleted.'
+    )
+
+    return redirect('attendance_list')
 
 
 # --------------------------------------------------

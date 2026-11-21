@@ -1,0 +1,36 @@
+{% extends "admin/base_site.html" %}
+
+{% block title %}Restore Career Catalogue{% endblock %}
+
+{% block content %}
+
+<div id="content-main">
+
+    <h1>Restore Career Catalogue and Career Quest</h1>
+
+    <p>
+        This is a one-time recovery operation using the verified
+        local backup.
+    </p>
+
+    <p>
+        <strong>
+            Restoration will only proceed if all seven destination
+            tables are empty.
+        </strong>
+    </p>
+
+    <p>Existing records will never be deleted or overwritten.</p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <button type="submit" class="button"
+                onclick="return confirm('Are you sure you want to restore the Career Catalogue and Career Quest data?');">
+            Restore Career Data
+        </button>
+    </form>
+
+</div>
+
+{% endblock %}

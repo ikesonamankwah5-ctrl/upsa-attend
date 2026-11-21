@@ -36,9 +36,70 @@ def report_dashboard(request):
 
     classrooms = get_user_classrooms(request.user)
 
+    # Get course offerings accessible to the user.
+    available_offerings = CourseOffering.objects.filter(
+        classroom__in=classrooms
+    ).select_related(
+        'classroom',
+        'semester',
+        'lecturer'
+    )
+
+    # Restrict lecturers to their assigned courses.
+    if is_lecturer(request.user) and not is_administrator(request.user):
+        available_offerings = available_offerings.filter(
+            lecturer=request.user
+        )
+
+    # Read selected filters.
+    selected_semester_id = request.GET.get('semester', '')
+    selected_course_id = request.GET.get('course', '')
+    selected_classroom_id = request.GET.get('classroom', '')
+    start_date = request.GET.get('start_date', '')
+    end_date = request.GET.get('end_date', '')
+
+    # Get attendance sessions from accessible classrooms.
     sessions = AttendanceSession.objects.filter(
         classroom__in=classrooms
-    ).annotate(
+    )
+
+    # Restrict lecturers to their assigned course offerings.
+    if is_lecturer(request.user) and not is_administrator(request.user):
+        sessions = sessions.filter(
+            course_offering__in=available_offerings
+        )
+
+    # Apply semester filter.
+    if selected_semester_id:
+        sessions = sessions.filter(
+            course_offering__semester_id=selected_semester_id
+        )
+
+    # Apply course filter.
+    if selected_course_id:
+        sessions = sessions.filter(
+            course_offering_id=selected_course_id
+        )
+
+    # Apply classroom filter.
+    if selected_classroom_id:
+        sessions = sessions.filter(
+            classroom_id=selected_classroom_id
+        )
+
+    # Apply date filters.
+    if start_date:
+        sessions = sessions.filter(
+            lecture_date__gte=start_date
+        )
+
+    if end_date:
+        sessions = sessions.filter(
+            lecture_date__lte=end_date
+        )
+
+    # Calculate attendance figures.
+    sessions = sessions.annotate(
         total_students=Count('records'),
         present_count=Count(
             'records',
@@ -55,13 +116,37 @@ def report_dashboard(request):
     for session in sessions:
         if session.total_students > 0:
             session.attendance_percentage = round(
-                (session.present_count / session.total_students) * 100, 1
+                (session.present_count / session.total_students) * 100,
+                1
             )
         else:
             session.attendance_percentage = 0
 
+    # Semester dropdown options.
+    semesters = Semester.objects.filter(
+        course_offerings__in=available_offerings
+    ).distinct().order_by('-start_date')
+
+    # Course dropdown options.
+    courses = available_offerings
+
+    if selected_semester_id:
+        courses = courses.filter(
+            semester_id=selected_semester_id
+        )
+
+    courses = courses.order_by('course_code')
+
     return render(request, 'reports/report_dashboard.html', {
-        'sessions': sessions
+        'sessions': sessions,
+        'semesters': semesters,
+        'courses': courses,
+        'classrooms': classrooms,
+        'selected_semester_id': selected_semester_id,
+        'selected_course_id': selected_course_id,
+        'selected_classroom_id': selected_classroom_id,
+        'start_date': start_date,
+        'end_date': end_date,
     })
 
 
@@ -100,17 +185,20 @@ def student_attendance_history(request):
             )
 
     total = len(records)
+
     present = sum(
         1 for record in records
         if record.status == 'Present'
     )
+
     absent = sum(
         1 for record in records
         if record.status == 'Absent'
     )
 
     percentage = round(
-        (present / total) * 100, 1
+        (present / total) * 100,
+        1
     ) if total else 0
 
     return render(request, 'reports/student_history.html', {

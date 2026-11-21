@@ -15,12 +15,78 @@
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: auto;
         }
 
-        h1 {
+        h1, h2 {
             color: #26356b;
+        }
+
+        .back-button {
+            display: inline-block;
+            background: #26356b;
+            color: white;
+            padding: 11px 18px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .filter-card {
+            background: white;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #26356b;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 22px;
+        }
+
+        .filter-button {
+            background: #26356b;
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .reset-button {
+            background: #e9ecf5;
+            color: #26356b;
+            padding: 12px 22px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
         }
 
         .session-card {
@@ -29,6 +95,29 @@
             margin: 20px 0;
             border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .summary-card {
+            background: #f4f6fb;
+            padding: 18px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .summary-card h2 {
+            margin-bottom: 5px;
         }
 
         table {
@@ -58,20 +147,33 @@
             font-weight: bold;
         }
 
-        .back-button {
-            display: inline-block;
-            background: #26356b;
-            color: white;
-            padding: 11px 18px;
-            text-decoration: none;
-            border-radius: 6px;
-            margin-bottom: 15px;
-        }
-
         .empty {
             background: white;
             padding: 25px;
             border-radius: 8px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            table {
+                font-size: 13px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
         }
     </style>
 </head>
@@ -81,11 +183,133 @@
 <div class="container">
 
     <a href="{% url 'dashboard' %}" class="back-button">
-        Back to Dashboard
+        ← Back to Dashboard
     </a>
 
-    <h1>Attendance Reports</h1>
-    <p>View attendance records for your classrooms.</p>
+    <h1>Reports & Analytics</h1>
+    <p>View and analyse attendance records across your accessible classrooms.</p>
+
+
+    <!-- FILTER SECTION -->
+
+    <div class="filter-card">
+
+        <h2>Filter Attendance Reports</h2>
+
+        <form method="GET" action="{% url 'report_dashboard' %}">
+
+            <div class="filter-grid">
+
+                <!-- SEMESTER FILTER -->
+
+                <div class="filter-group">
+                    <label for="semester">Academic Semester</label>
+
+                    <select name="semester" id="semester">
+                        <option value="">All Semesters</option>
+
+                        {% for semester in semesters %}
+                            <option value="{{ semester.id }}"
+                                {% if selected_semester_id == semester.id|stringformat:"s" %}
+                                    selected
+                                {% endif %}>
+                                {{ semester.name }} - {{ semester.academic_year }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+
+                <!-- COURSE FILTER -->
+
+                <div class="filter-group">
+                    <label for="course">Course</label>
+
+                    <select name="course" id="course">
+                        <option value="">All Courses</option>
+
+                        {% for course in courses %}
+                            <option value="{{ course.id }}"
+                                {% if selected_course_id == course.id|stringformat:"s" %}
+                                    selected
+                                {% endif %}>
+                                {{ course.course_code }} - {{ course.course_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+
+                <!-- CLASSROOM FILTER -->
+
+                <div class="filter-group">
+                    <label for="classroom">Classroom</label>
+
+                    <select name="classroom" id="classroom">
+                        <option value="">All Classrooms</option>
+
+                        {% for classroom in available_classrooms %}
+                            <option value="{{ classroom.id }}"
+                                {% if selected_classroom_id == classroom.id|stringformat:"s" %}
+                                    selected
+                                {% endif %}>
+                                {{ classroom.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+
+                <!-- START DATE -->
+
+                <div class="filter-group">
+                    <label for="start_date">Start Date</label>
+
+                    <input
+                        type="date"
+                        name="start_date"
+                        id="start_date"
+                        value="{{ start_date }}"
+                    >
+                </div>
+
+
+                <!-- END DATE -->
+
+                <div class="filter-group">
+                    <label for="end_date">End Date</label>
+
+                    <input
+                        type="date"
+                        name="end_date"
+                        id="end_date"
+                        value="{{ end_date }}"
+                    >
+                </div>
+
+            </div>
+
+
+            <div class="filter-actions">
+
+                <button type="submit" class="filter-button">
+                    Apply Filters
+                </button>
+
+                <a href="{% url 'report_dashboard' %}" class="reset-button">
+                    Reset Filters
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- ATTENDANCE REPORTS -->
+
+    <h2>Attendance Records</h2>
 
     {% for session in sessions %}
 
@@ -93,11 +317,59 @@
 
             <h2>{{ session.course_name }}</h2>
 
-            <p><strong>Course Code:</strong> {{ session.course_code }}</p>
-            <p><strong>Classroom:</strong> {{ session.classroom.name }}</p>
-            <p><strong>Lecture Date:</strong> {{ session.lecture_date }}</p>
+            <p>
+                <strong>Course Code:</strong>
+                {{ session.course_code }}
+            </p>
+
+            <p>
+                <strong>Classroom:</strong>
+                {{ session.classroom.name }}
+            </p>
+
+            <p>
+                <strong>Lecture Date:</strong>
+                {{ session.lecture_date|date:"d M Y" }}
+            </p>
+
+
+            <!-- ATTENDANCE SUMMARY -->
+
+            <div class="summary-grid">
+
+                <div class="summary-card">
+                    <h3>Total Students</h3>
+                    <h2>{{ session.total_students }}</h2>
+                </div>
+
+                <div class="summary-card">
+                    <h3>Present</h3>
+                    <h2 class="present">
+                        {{ session.present_count }}
+                    </h2>
+                </div>
+
+                <div class="summary-card">
+                    <h3>Absent</h3>
+                    <h2 class="absent">
+                        {{ session.absent_count }}
+                    </h2>
+                </div>
+
+                <div class="summary-card">
+                    <h3>Attendance Rate</h3>
+                    <h2>{{ session.attendance_percentage }}%</h2>
+                </div>
+
+            </div>
+
+
+            <!-- STUDENT ATTENDANCE TABLE -->
+
+            <h3>Student Attendance Details</h3>
 
             <table>
+
                 <thead>
                     <tr>
                         <th>Student Name</th>
@@ -107,24 +379,51 @@
                 </thead>
 
                 <tbody>
+
                     {% for record in session.records.all %}
+
                         <tr>
-                            <td>{{ record.student.full_name }}</td>
-                            <td>{{ record.student.index_number }}</td>
+
                             <td>
+                                {{ record.student.full_name }}
+                            </td>
+
+                            <td>
+                                {{ record.student.index_number }}
+                            </td>
+
+                            <td>
+
                                 {% if record.status == 'Present' %}
-                                    <span class="present">Present</span>
+
+                                    <span class="present">
+                                        Present
+                                    </span>
+
                                 {% else %}
-                                    <span class="absent">Absent</span>
+
+                                    <span class="absent">
+                                        Absent
+                                    </span>
+
                                 {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+                            <td colspan="3">
+                                No attendance records found.
                             </td>
                         </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="3">No attendance records found.</td>
-                        </tr>
+
                     {% endfor %}
+
                 </tbody>
+
             </table>
 
         </div>
@@ -132,7 +431,11 @@
     {% empty %}
 
         <div class="empty">
-            <p>You don't have any attendance reports yet.</p>
+            <h3>No Attendance Reports Found</h3>
+            <p>
+                No attendance records match your selected filters.
+                Try changing your filters or resetting them.
+            </p>
         </div>
 
     {% endfor %}
@@ -141,26 +444,3 @@
 
 </body>
 </html>
-<div style="display: flex; gap: 15px; flex-wrap: wrap; margin: 20px 0;">
-
-    <div class="session-card">
-        <h3>Total Students</h3>
-        <h2>{{ session.total_students }}</h2>
-    </div>
-
-    <div class="session-card">
-        <h3>Present</h3>
-        <h2 class="present">{{ session.present_count }}</h2>
-    </div>
-
-    <div class="session-card">
-        <h3>Absent</h3>
-        <h2 class="absent">{{ session.absent_count }}</h2>
-    </div>
-
-    <div class="session-card">
-        <h3>Attendance Rate</h3>
-        <h2>{{ session.attendance_percentage }}%</h2>
-    </div>
-
-</div>

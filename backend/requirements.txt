@@ -13,3 +13,4 @@ python-docx==1.2.0
 python-pptx==1.0.2
 requests==2.34.2
 python-dotenv==1.2.4
+django-apscheduler==0.7.0
